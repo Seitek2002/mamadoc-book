@@ -1,29 +1,65 @@
 import { Availability } from '@/shared/assets/images/doctors';
 import clsx from 'clsx';
 
-// Сегодня - #34C759 | slot - #D7FFE3 | slotText - #008236
-// Завтра - #0088FF | slot - #C4DCFF | slotText - #0088FF
-// (day) (month) - #7A7878 | slot - #EFEDED | slotText - #665F5F
-
 export const AvailabilityBlock = ({
   availability,
 }: {
   availability: Availability;
 }) => {
+  const isToday = availability.label === 'Сегодня';
+  const isTomorrow = availability.label === 'Завтра';
+  const isSpecial = isToday || isTomorrow;
+
+  const titleColor = isToday
+    ? 'text-[#34C759]'
+    : isTomorrow
+      ? 'text-[#0088FF]'
+      : 'text-[#7A7878]';
+
+  const slotBg = isToday
+    ? 'bg-[#D7FFE3]'
+    : isTomorrow
+      ? 'bg-[#C4DCFF]'
+      : 'bg-[#EFEDED]';
+
+  const slotText = isToday
+    ? 'text-[#008236]'
+    : isTomorrow
+      ? 'text-[#0088FF]'
+      : 'text-[#665F5F]';
+
+  // ── Стили именно для метки дня (Сегодня / Завтра / 13 марта)
+  const dayLabelClasses = clsx(
+    'lowercase lg:normal-case lg:text-[10px]',
+    !isSpecial &&
+      'lg:border lg:border-gray lg:font-semibold lg:rounded-full lg:px-1.5 lg:py-0.5',
+  );
+
   return (
-    <div className='mb-1.5'>
-      <span className='text-xs font-medium text-green mb-1'>
-        Свободные окна{' '}
-        <span className='lowercase'>{availability.label}:</span>
+    <div className='mb-1.5 lg:flex lg:items-center'>
+      <span className={clsx('text-xs font-medium block shrink-0', titleColor)}>
+        <span className='lg:hidden'>Свободные окна </span>
+        <span className={dayLabelClasses}>{availability.label}:</span>
       </span>
-      <div className='text-xs font-medium text-success flex gap-1'>
-        {availability.slots.map((item, i) => (
-          <span className='bg-mint-100 rounded-full px-2 py-0.5' key={i}>
-            {item}
-          </span>
-        ))}
+
+      <div className='flex gap-1 items-center flex-1 mt-1 lg:mt-0'>
+        <div className='flex gap-1 items-center lg:max-w-30 overflow-x-hidden flex-1'>
+          {availability.slots.map((item, i) => (
+            <span
+              key={i}
+              className={clsx(
+                'text-xs font-medium rounded-full px-2 py-0.5 lg:text-[10px]',
+                slotBg,
+                slotText,
+              )}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+
         {availability.moreCount > 0 && (
-          <span className='bg-[#A0A0A0] rounded-full px-2 py-0.5 text-white flex items-center gap-0.5 ml-auto'>
+          <span className='text-xs lg:text-[10px] font-medium rounded-full px-2 py-0.5 text-white flex items-center gap-0.5 ml-auto bg-[#A0A0A0]'>
             +{availability.moreCount}
             <ArrowIcon />
           </span>
