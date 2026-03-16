@@ -1,12 +1,12 @@
 import Image from 'next/image';
-import logo from '@/assets/images/logo.png';
-import BurgerMenuIcon from '@/assets/icons/header/burger-menu.svg';
-import BellIcon from '@/assets/icons/header/bell.svg';
 import Link from 'next/link';
+import logo from '@/shared/assets/images/logo.png';
+import BurgerMenuIcon from '@/shared/assets/icons/header/burger-menu.svg';
+import BellIcon from '@/shared/assets/icons/header/bell.svg';
 
 export const Header = () => {
   return (
-    <header className='py-4 px-4 flex justify-between items-center bg-white'>
+    <header className='py-4 px-4 flex justify-between items-center md:bg-white'>
       <Image
         src={logo}
         alt='logo'

@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
+import { Header } from '@/widgets';
 import './globals.css';
-import { Header } from '@/widgets/header';
 
 const poppins = Poppins({
-  subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-poppins',
   display: 'swap',
