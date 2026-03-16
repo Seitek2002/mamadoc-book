@@ -7,7 +7,7 @@ const DoctorsPage = async ({ params }: { params: { id: string } }) => {
 
   return (
     <div>
-      <div className="px-4">
+      <div className='px-4'>
         <PageTitle title='Выберите дату и время, чтобы записаться' />
       </div>
       <DoctorsDetailsCard />

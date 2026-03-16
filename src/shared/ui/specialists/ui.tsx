@@ -1,6 +1,6 @@
 import Image, { StaticImageData } from 'next/image';
-import ArrowIcon from '@/shared/assets/icons/arrow.svg';
 import Link from 'next/link';
+import ArrowIcon from '@/shared/assets/icons/arrow.svg';
 
 export const Specialists = ({
   img,
