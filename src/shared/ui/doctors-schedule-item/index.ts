@@ -1,0 +1,1 @@
+export { DoctorsScheduleItem } from './ui';

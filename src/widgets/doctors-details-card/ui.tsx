@@ -25,11 +25,11 @@ export const DoctorsDetailsCard = () => {
         <div className='flex items-center justify-center md:justify-start mt-1.5 gap-2.5 text-[#FEA500]'>
           <span className='font-semibold'>4,8</span>
           <div className='flex'>
-            <StarIcon className='md:w-4 md:h-4' />
-            <StarIcon className='md:w-4 md:h-4' />
-            <StarIcon className='md:w-4 md:h-4' />
-            <StarIcon className='md:w-4 md:h-4' />
-            <StarIcon className='md:w-4 md:h-4' />
+            <StarIcon className='size-3 md:size-4' />
+            <StarIcon className='size-3 md:size-4' />
+            <StarIcon className='size-3 md:size-4' />
+            <StarIcon className='size-3 md:size-4' />
+            <StarIcon className='size-3 md:size-4' />
           </div>
         </div>
         <h2 className='mt-0.5 font-semibold'>Стаж 12 лет</h2>
