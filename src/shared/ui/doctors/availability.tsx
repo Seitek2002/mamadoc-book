@@ -1,4 +1,9 @@
 import { Availability } from '@/shared/assets/images/doctors';
+import clsx from 'clsx';
+
+// Сегодня - #34C759 | slot - #D7FFE3 | slotText - #008236
+// Завтра - #0088FF | slot - #C4DCFF | slotText - #0088FF
+// (day) (month) - #7A7878 | slot - #EFEDED | slotText - #665F5F
 
 export const AvailabilityBlock = ({
   availability,
