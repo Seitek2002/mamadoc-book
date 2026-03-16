@@ -1,0 +1,1 @@
+export { DoctorsName } from './ui';
