@@ -43,7 +43,12 @@ export const AvailabilityBlock = ({
       </span>
 
       <div className='flex gap-1 items-center flex-1 mt-1 lg:mt-0'>
-        <div className='flex gap-1 items-center lg:max-w-30 overflow-x-hidden flex-1'>
+        <div
+          className={clsx(
+            'flex gap-1 items-center lg:max-w-30 overflow-x-hidden flex-1',
+            availability.moreCount > 0 ? ' lg:max-w-30' : ' lg:max-w-none',
+          )}
+        >
           {availability.slots.map((item, i) => (
             <span
               key={i}

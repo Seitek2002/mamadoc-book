@@ -10,7 +10,7 @@ const page = async ({ params }: { params: { id: string } }) => {
     <div>
       <PageTitle title='Выберите врача, чтобы посмотреть свободные окна' />
 
-      <div className='flex fles-col'>
+      <div className='flex flex-col items-start mt-6 lg:flex-row lg:gap-7.5'>
         <SearchBar />
         <DoctorsList />
       </div>

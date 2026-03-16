@@ -19,7 +19,7 @@ export const Doctors = ({ el }: { el: DoctorPreview }) => {
         </div>
         <div className='mt-auto'>
           <AvailabilityBlock availability={el.availability} />
-          <button className='text-xs border w-full rounded-full py-1.5 border-[#C7C7C7]'>
+          <button className='text-xs border cursor-pointer w-full rounded-full py-1.5 border-[#C7C7C7]'>
             Записаться
           </button>
         </div>
