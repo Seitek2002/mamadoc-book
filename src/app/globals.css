@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+@theme {
+  /* Основные / брендовые цвета */
+  --color-primary:     #1A5DD0;
+  --color-accent:      #0088FF;
+  
+  /* Зелёные — успех / позитив */
+  --color-success:     #008236;
+  --color-green:       #34C759;
+  --color-mint-100:    #D7FFE3;
+  
+  /* Нейтральные */
+  --color-dark:        #312E2E;
+  --color-gray:        #7A7878;
+  
+  /* Светлый голубой фон / акцент */
+  --color-sky:         #AAC5F2;
+}

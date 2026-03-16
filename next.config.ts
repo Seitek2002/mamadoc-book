@@ -1,8 +1,17 @@
-import type { NextConfig } from "next";
+// next.config.ts
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
+
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.tsx',  // или '*.tsx', если хочешь типы React
+      },
+    },
+  },
 };
 
 export default nextConfig;
