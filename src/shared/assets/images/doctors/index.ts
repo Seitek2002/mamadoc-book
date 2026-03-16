@@ -4,16 +4,18 @@ import item3 from './3.jpg';
 import item4 from './4.jpg';
 import item5 from './5.jpg';
 
+export interface Availability {
+  label: string; // "Сегодня", "Завтра", "13 марта" и т.п.
+  slots: string[]; // видимые слоты
+  moreCount: number; // сколько ещё скрыто → +N
+}
+
 export interface DoctorPreview {
   id: number;
   fullName: string;
   photo: typeof item1; // StaticImageData в Next.js
   specialty: string;
-  availability: {
-    label: string; // "Сегодня", "Завтра", "13 марта" и т.п.
-    slots: string[]; // видимые слоты
-    moreCount: number; // сколько ещё скрыто → +N
-  };
+  availability: Availability;
 }
 
 export const DOCTORS_LIST: DoctorPreview[] = [
