@@ -6,19 +6,22 @@ export const Doctors = ({ el }: { el: DoctorPreview }) => {
   return (
     <Link
       href={'/doctor/' + el.id}
-      className='flex rounded-[10px] overflow-hidden bg-white border border-[#E7E7EE]'
+      className='flex lg:flex-col lg:w-57.5 rounded-[10px] overflow-hidden bg-white border border-[#E7E7EE]'
     >
-      <div className='w-32.25 h-42 shrink-0'>
+      <div className='w-32.25 h-42 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-center'>
         <Image
           src={el.photo}
           alt={el.fullName}
           className='shrink-0 object-cover w-full h-full'
         />
+        <span className='absolute right-0 bottom-0 px-2 py-1.5 rounded-tl-[10px] hidden lg:inline text-xs font-semibold text-gray bg-white'>
+          {el.specialty}
+        </span>
       </div>
-      <div className='p-2.5 flex flex-col'>
+      <div className='p-2.5 flex flex-col flex-1'>
         <div>
           <h2 className='text-sm font-medium line-clamp-2'>{el.fullName}</h2>
-          <span className='text-xs font-semibold text-gray'>
+          <span className='lg:hidden text-xs font-semibold text-gray'>
             {el.specialty}
           </span>
         </div>
@@ -34,10 +37,12 @@ export const Doctors = ({ el }: { el: DoctorPreview }) => {
                   {el}
                 </span>
               ))}
-              <span className='bg-[#A0A0A0] rounded-full px-2 py-0.5 text-white flex items-center gap-0.5 ml-auto'>
-                +3
-                <ArrowIcon />
-              </span>
+              {el.availability.moreCount > 0 && (
+                <span className='bg-[#A0A0A0] rounded-full px-2 py-0.5 text-white flex items-center gap-0.5 ml-auto'>
+                  +{el.availability.moreCount}
+                  <ArrowIcon />
+                </span>
+              )}
             </div>
           </div>
           <button className='text-xs border w-full rounded-full py-1.5 border-[#C7C7C7]'>
