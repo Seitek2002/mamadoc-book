@@ -18,7 +18,7 @@ export const DoctorsDetailsCard = () => {
       </div>
       <div className='text-center font-medium text-xs'>
         <DoctorsName fullName='Сурапбеков Бекмамат Султангазиевич' />
-        <h2 className='text-gray mt-0.5'>Гинеколог • гинеколог-эндокринолог</h2>
+        <h2 className='text-gray mt-0.5'>{person.specialty}</h2>
         <div className='flex items-center justify-center mt-1.5 gap-2.5 text-[#FEA500]'>
           <span className='font-semibold'>4,8</span>
           <div className='flex'>
