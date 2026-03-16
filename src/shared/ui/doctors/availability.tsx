@@ -1,5 +1,5 @@
-import { Availability } from '@/shared/assets/images/doctors';
 import clsx from 'clsx';
+import { Availability } from '@/shared/assets/images/doctors';
 
 export const AvailabilityBlock = ({
   availability,

@@ -12,9 +12,9 @@ export const PageTitle = ({ title, href = '/' }: PageTitleProps) => {
   return (
     <Link
       href={href}
-      className='flex gap-1.5 items-center md:mt-6 select-none max-w-80'
+      className='flex gap-1.5 items-center md:mt-6 select-none max-w-100'
     >
-      <ArrowIcon className='shrink-0 lg:hidden' />
+      <ArrowIcon className='shrink-0' />
 
       <h2 className='text-base font-medium lg:hidden'>{shortTitle}</h2>
       <h2 className='text-sm font-medium hidden lg:inline'>{title}</h2>

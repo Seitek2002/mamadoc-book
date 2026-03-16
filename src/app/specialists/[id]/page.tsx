@@ -1,5 +1,6 @@
 import { DoctorsList } from '@/widgets';
 import { PageTitle } from '@/shared/ui';
+import { SearchBar } from '@/shared/ui/search-bar';
 
 const page = async ({ params }: { params: { id: string } }) => {
   const { id } = await params;
@@ -9,7 +10,10 @@ const page = async ({ params }: { params: { id: string } }) => {
     <div>
       <PageTitle title='Выберите врача, чтобы посмотреть свободные окна' />
 
-      <DoctorsList />
+      <div className='flex fles-col'>
+        <SearchBar />
+        <DoctorsList />
+      </div>
     </div>
   );
 };
