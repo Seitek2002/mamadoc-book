@@ -22,7 +22,7 @@ async function DoctorsPage({ params }: { params: { id: string } }) {
         <PageTitle title='Выберите дату и время, чтобы записаться' />
       </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-4 items-start'>
+      <div className='grid grid-cols-1 lg:grid-cols-[500px_1fr] gap-4 items-start'>
         <div className='lg:col-start-1 lg:row-start-1'>
           <DoctorsDetailsCard id={id} />
         </div>
