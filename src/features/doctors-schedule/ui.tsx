@@ -13,7 +13,7 @@ export const DoctorsSchedule = ({ id }: { id: string }) => {
   const currentSlots = selectedDay?.times || [];
 
   return (
-    <div className='bg-white rounded-2xl py-5 my-4'>
+    <div className='bg-white rounded-2xl py-5 my-4 lg:my-0'>
       <div className='grid grid-cols-4 gap-2 max-h-41.25 overflow-auto px-4 py-2 md:grid-cols-6'>
         {calendar.map((el) => (
           <DoctorsScheduleItem

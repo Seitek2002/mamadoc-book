@@ -6,11 +6,13 @@ const page = async ({ params }: { params: { id: string } }) => {
   console.log(id);
 
   return (
-    <div className='px-4'>
+    <div className='max-w-7xl mx-auto px-4'>
       <PageTitle title='Выберите врача, чтобы посмотреть свободные окна' />
 
       <div className='flex flex-col items-start mt-6 lg:flex-row lg:gap-7.5'>
-        <SearchBar />
+        <div className='w-full lg:w-[33%]'>
+          <SearchBar />
+        </div>
         <DoctorsList />
       </div>
     </div>
