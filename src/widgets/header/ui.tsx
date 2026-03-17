@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import logo from '@/shared/assets/images/logo.png';
-import BurgerMenuIcon from '@/shared/assets/icons/header/burger-menu.svg';
+// import BurgerMenuIcon from '@/shared/assets/icons/header/burger-menu.svg';
 import BellIcon from '@/shared/assets/icons/header/bell.svg';
 
 export const Header = () => {
@@ -15,7 +15,7 @@ export const Header = () => {
         className='shrink-0'
       />
 
-      <BurgerMenuIcon className='md:hidden' />
+      {/* <BurgerMenuIcon className='md:hidden' /> */}
       <div className='hidden md:flex gap-4 text-sm items-center'>
         <div className='flex gap-1.5'>
           <Link href={'/login'}>Войти</Link>

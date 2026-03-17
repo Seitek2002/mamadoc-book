@@ -3,7 +3,6 @@ import { DoctorsDetailsCard } from '@/widgets';
 import { PageTitle } from '@/shared/ui';
 import { DoctorsSchedule } from '@/features';
 
-// Статичные данные прямо в файле
 const SERVICES_DATA = [
   { id: 1, name: 'Общий осмотр', price: 1500, isSelected: true },
   { id: 2, name: 'Осмотр в зеркалах', price: 1500, isSelected: false },
@@ -23,19 +22,15 @@ async function DoctorsPage({ params }: { params: { id: string } }) {
         <PageTitle title='Выберите дату и время, чтобы записаться' />
       </div>
 
-      {/* Основной контейнер сетки */}
       <div className='grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-4 items-start'>
-        {/* 1. Карточка доктора (всегда первая) */}
         <div className='lg:col-start-1 lg:row-start-1'>
           <DoctorsDetailsCard id={id} />
         </div>
 
-        {/* 2. Расписание (на мобилке второе, на ПК — правая колонка) */}
         <div className='lg:col-start-2 lg:row-start-1 lg:row-span-2'>
           <DoctorsSchedule id={id} />
         </div>
 
-        {/* 3. Услуги (на мобилке третьи, на ПК — под карточкой доктора) */}
         <div className='lg:col-start-1 lg:row-start-2'>
           <div className='bg-white rounded-2xl py-5 px-4 shadow-sm'>
             <div className='grid grid-cols-[32px_1fr_80px] items-center gap-3 mb-4 px-1 text-xl font-medium text-[#333]'>
