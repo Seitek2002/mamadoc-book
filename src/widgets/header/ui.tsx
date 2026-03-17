@@ -18,8 +18,7 @@ export const Header = () => {
       <BurgerMenuIcon className='md:hidden' />
       <div className='hidden md:flex gap-4 text-sm items-center'>
         <div className='flex gap-1.5'>
-          <Link href={'/login'}>Войти</Link>/
-          <Link href={'/register'}>Регистрация</Link>
+          <Link href={'/login'}>Войти</Link>
         </div>
         <BellIcon />
         <Image
