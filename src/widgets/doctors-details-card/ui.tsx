@@ -4,8 +4,8 @@ import { DoctorsName } from '@/shared/ui';
 
 import StarIcon from '@/shared/assets/icons/doctor-detail/start-icon.svg';
 
-export const DoctorsDetailsCard = () => {
-  const person = DOCTORS_LIST[0];
+export const DoctorsDetailsCard = ({ id }: { id: string }) => {
+  const person = DOCTORS_LIST[+id - 1];
 
   return (
     <div className='flex flex-col md:flex-row items-center md:items-start gap-3 bg-white px-2.5 py-5 md:p-5 mt-6 rounded-2xl md:max-w-max md:mx-auto'>

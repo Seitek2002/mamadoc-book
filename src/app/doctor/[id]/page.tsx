@@ -4,7 +4,6 @@ import { DoctorsSchedule } from '@/features';
 
 const DoctorsPage = async ({ params }: { params: { id: string } }) => {
   const { id } = await params;
-  console.log(id);
 
   return (
     <div>
@@ -12,8 +11,8 @@ const DoctorsPage = async ({ params }: { params: { id: string } }) => {
         <PageTitle title='Выберите дату и время, чтобы записаться' />
       </div>
       <div className="flex flex-col">
-        <DoctorsDetailsCard />
-        <DoctorsSchedule />
+        <DoctorsDetailsCard id={id} />
+        <DoctorsSchedule id={id} />
       </div>
     </div>
   );

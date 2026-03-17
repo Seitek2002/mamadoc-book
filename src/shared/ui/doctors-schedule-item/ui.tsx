@@ -51,7 +51,7 @@ export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
 
       <span
         className={clsx(
-          'text-[12px] flex justify-between items-center capitalize transition-all',
+          'text-[12px] flex justify-between items-center capitalize transition-all text-nowrap',
           isActive ? 'text-success' : 'text-primary',
         )}
       >

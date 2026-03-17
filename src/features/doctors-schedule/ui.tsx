@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { DOCTORS_DETAILS_LIST } from '@/shared/assets/images/doctors';
 import { DoctorsScheduleItem } from '@/shared/ui';
 
-export const DoctorsSchedule = () => {
-  const calendar = DOCTORS_DETAILS_LIST[0].availabilityCalendar;
+export const DoctorsSchedule = ({ id }: { id: string }) => {
+  const calendar = DOCTORS_DETAILS_LIST[+id - 1].availabilityCalendar;
 
   const [selectedDate, setSelectedDate] = useState(calendar[0].date);
 
