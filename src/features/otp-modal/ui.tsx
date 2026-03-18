@@ -45,8 +45,6 @@ export function OTPModal({
     return () => clearInterval(timer);
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const handleChange = (index: number, value: string) => {
     if (isNaN(Number(value))) return;
 
@@ -109,15 +107,20 @@ export function OTPModal({
 
   return (
     <div
-      className='fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 transition-opacity'
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${
+        isOpen
+          ? 'opacity-100 pointer-events-auto bg-black/50'
+          : 'opacity-0 pointer-events-none bg-black/0'
+      }`}
       onClick={onClose}
     >
       <div
-        // Размеры и отступы враппера (Мобилка: 290px, ПК: 525px)
-        className='bg-white rounded-[10px] w-full max-w-72.5 md:max-w-131.25 p-7.5 flex flex-col items-center'
+        className={`bg-white rounded-[10px] w-full max-w-72.5 md:max-w-131.25 p-7.5 flex flex-col items-center transition-transform duration-300 ease-in-out ${
+          isOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Кнопка закрытия (без absolute position, выстроена по правому краю) */}
+        {/* Кнопка закрытия */}
         <div className='w-full flex justify-end mb-2 md:mb-4'>
           <button
             onClick={onClose}
@@ -162,7 +165,6 @@ export function OTPModal({
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
               onPaste={handlePaste}
-              // Стили инпутов (Мобилка: 35x34, ПК: 70.83x54)
               className='w-full max-w-8.75 md:max-w-[70.83px] h-8.5 md:h-13.5 bg-[#F8F7F7] border border-[#DBE0E6] rounded-sm md:rounded-lg text-center text-lg md:text-2xl font-medium text-dark focus:border-accent focus:outline-none focus:bg-white transition-colors'
             />
           ))}
@@ -172,7 +174,6 @@ export function OTPModal({
         <button
           onClick={handleSubmit}
           disabled={otp.join('').length !== 6}
-          // Размеры кнопки (ПК: w-308px, h-41px | Мобилка: full, h-38px)
           className='w-full md:w-77 h-9.5 md:h-10.25 bg-accent disabled:opacity-50 hover:bg-[#0070d1] transition-colors text-white text-[14px] md:text-[16px] font-medium rounded-[10px] mb-4'
         >
           Продолжить

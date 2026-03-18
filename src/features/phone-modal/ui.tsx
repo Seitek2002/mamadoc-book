@@ -45,8 +45,6 @@ export function PhoneModal({ isOpen, onClose, onContinue }: PhoneModalProps) {
     };
   }, [dropdownRef]);
 
-  if (!isOpen) return null;
-
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
     // Запретить 0 первым символом
@@ -66,11 +64,17 @@ export function PhoneModal({ isOpen, onClose, onContinue }: PhoneModalProps) {
 
   return (
     <div
-      className='fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 transition-opacity'
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${
+        isOpen
+          ? 'opacity-100 pointer-events-auto bg-black/50'
+          : 'opacity-0 pointer-events-none bg-black/0'
+      }`}
       onClick={onClose}
     >
       <div
-        className='bg-white rounded-2xl shadow-xl w-full max-w-100 p-6 relative flex flex-col items-center gap-4'
+        className={`bg-white rounded-2xl shadow-xl w-full max-w-100 p-6 relative flex flex-col items-center gap-4 transition-transform duration-300 ease-in-out ${
+          isOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <p className='text-sm text-center text-[#333] mb-4'>
@@ -86,7 +90,9 @@ export function PhoneModal({ isOpen, onClose, onContinue }: PhoneModalProps) {
             {/* Временная заглушка для флага, использую эмодзи. Замените на Image с правильным путем. */}
             <span className='w-5 h-4 text-sm'>{selectedCountry.flag}</span>
             {/* Временная заглушка для иконки стрелки, использую символ. Замените на ArrowIcon из библиотеки. */}
-            <span className='size-4 text-gray-400'><ArrowIcon className='rotate-90' /></span>
+            <span className='size-4 text-gray-400'>
+              <ArrowIcon className='rotate-90' />
+            </span>
 
             {isDropdownOpen && (
               <div className='absolute top-full left-0 mt-1 bg-white border border-gray-100 rounded-lg shadow-lg z-10 w-40 max-h-40 overflow-y-auto'>
