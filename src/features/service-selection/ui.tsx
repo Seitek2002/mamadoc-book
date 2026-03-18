@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import clsx from 'clsx';
 
 const INITIAL_SERVICES = [
@@ -13,17 +12,21 @@ const INITIAL_SERVICES = [
   { id: 7, name: 'Повторный прием', price: 1500, isSelected: false },
 ];
 
-export function ServicesSelection() {
-  const [services, setServices] = useState(INITIAL_SERVICES);
+interface ServicesSelectionProps {
+  selectedServices: number[];
+  onChange: (services: number[]) => void;
+}
 
+export function ServicesSelection({
+  selectedServices,
+  onChange,
+}: ServicesSelectionProps) {
   const toggleService = (id: number) => {
-    setServices((prev) =>
-      prev.map((service) =>
-        service.id === id
-          ? { ...service, isSelected: !service.isSelected }
-          : service,
-      ),
-    );
+    const newServices = selectedServices.includes(id)
+      ? selectedServices.filter((item) => item !== id)
+      : [...selectedServices, id];
+
+    onChange(newServices);
   };
 
   return (
@@ -35,42 +38,49 @@ export function ServicesSelection() {
       </div>
 
       <div className='flex flex-col gap-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar'>
-        {services.map((service) => (
-          <button
-            key={service.id}
-            onClick={() => toggleService(service.id)}
-            className='grid grid-cols-[32px_1fr_80px] items-center gap-3 px-1 text-left hover:bg-gray-50 transition-colors rounded-lg py-1'
-          >
-            <div
-              className={clsx(
-                'size-6 rounded-sm border-2 flex justify-center items-center transition-colors',
-                service.isSelected
-                  ? 'bg-[#5CB85C] border-[#5CB85C]'
-                  : 'border-gray-300',
-              )}
+        {INITIAL_SERVICES.map((service) => {
+          const isSelected = selectedServices.includes(service.id);
+          return (
+            <button
+              key={service.id}
+              onClick={() => toggleService(service.id)}
+              className='grid grid-cols-[32px_1fr_80px] items-center gap-3 px-1 text-left hover:bg-gray-50 transition-colors rounded-lg py-1'
             >
-              {service.isSelected && (
-                <svg width='12' height='10' viewBox='0 0 12 10' fill='none'>
-                  <path
-                    d='M1 5.2L4.2 8.4L10.6 2'
-                    stroke='white'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                  />
-                </svg>
-              )}
-            </div>
-
-            <span className='text-[17px] text-[#333] font-medium leading-tight'>
-              {service.name}
-            </span>
-
-            <span className='text-[17px] text-[#333] font-medium text-right'>
-              {service.price}
-            </span>
-          </button>
-        ))}
+              <div
+                className={clsx(
+                  'size-6 rounded-sm border-2 flex justify-center items-center transition-colors',
+                  isSelected
+                    ? 'bg-[#5CB85C] border-[#5CB85C]'
+                    : 'border-gray-300',
+                )}
+              >
+                {isSelected && (
+                  <svg
+                    width='12'
+                    height='10'
+                    viewBox='0 0 12 10'
+                    fill='none'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      d='M1 5.2L4.2 8.4L10.6 2'
+                      stroke='white'
+                      strokeWidth='2'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                  </svg>
+                )}
+              </div>
+              <span className='text-[17px] text-[#333] font-medium leading-tight'>
+                {service.name}
+              </span>
+              <span className='text-[17px] text-[#333] font-medium text-right'>
+                {service.price}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
