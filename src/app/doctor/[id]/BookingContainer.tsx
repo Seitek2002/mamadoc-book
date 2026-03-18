@@ -10,6 +10,7 @@ import {
   OTPModal,
   SuccessModal,
 } from '@/features';
+import { DOCTORS_DETAILS_LIST } from '@/shared/assets/images/doctors';
 
 interface BookingWrapperProps {
   id: string;
@@ -24,8 +25,10 @@ const Tooltip = ({ text }: { text: string }) => (
 );
 
 export function BookingWrapper({ id }: BookingWrapperProps) {
+  const calendar = DOCTORS_DETAILS_LIST[+id - 1].availabilityCalendar;
+
   // Стейты данных формы
-  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState(calendar[0].date);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
 

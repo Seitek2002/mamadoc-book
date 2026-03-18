@@ -17,7 +17,7 @@ export const SearchBar = () => {
         />
         <SearchIcon className='shrink-0 absolute right-2.5' />
       </label>
-      <div className='hidden lg:flex flex-col gap-2.5 my-6'>
+      <div className='hidden lg:flex flex-col gap-2.5 my-3'>
         {SPECIALISTS_LIST.map((el) => (
           <Specialists key={el.id} {...el} />
         ))}

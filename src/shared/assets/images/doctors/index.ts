@@ -59,7 +59,7 @@ export const DOCTORS_LIST: DoctorPreview[] = [
     specialty: 'Физиотерапевт',
     availability: {
       label: '15 марта',
-      slots: ['12:00', '8:00', '22:00'],
+      slots: ['12:00'],
       moreCount: 3,
     },
   },
@@ -841,12 +841,12 @@ export const DOCTORS_DETAILS_LIST: DoctorDetail[] = [
         label: '15 марта',
         slotsCount: 3,
         isAvailable: true,
-        times: ['12:00', '08:00', '22:00'],
+        times: ['12:00'],
       },
       // ... еще 28 дней
     ],
     selectedDate: '2026-03-15',
-    availableTimes: ['12:00', '08:00', '22:00'],
+    availableTimes: ['12:00'],
     services: [{ id: 1, name: 'Прием врача', price: 2000, isSelected: true }],
     reviews: [],
     totalReviewsCount: 89,

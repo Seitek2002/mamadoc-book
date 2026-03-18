@@ -30,23 +30,23 @@ export const AvailabilityBlock = ({
 
   // ── Стили именно для метки дня (Сегодня / Завтра / 13 марта)
   const dayLabelClasses = clsx(
-    'lowercase lg:normal-case lg:text-[10px]',
+    'lowercase leading-tight lg:normal-case lg:text-[10px]',
     !isSpecial &&
-      'lg:border lg:border-gray lg:font-semibold lg:rounded-full lg:px-1.5 lg:py-0.5',
+      'lg:border lg:border-gray lg:font-semibold lg:rounded-full lg:px-1 lg:py-0.5',
   );
 
   return (
-    <div className='mb-1.5 lg:flex lg:items-center'>
-      <span className={clsx('text-xs font-medium block shrink-0', titleColor)}>
+    <div className='mb-2 mt-2.5 lg:flex lg:items-center lg:gap-[6px]'>
+      <div className={clsx('text-xs font-medium shrink-0 h-[18px]', titleColor)}>
         <span className='lg:hidden'>Свободные окна </span>
         <span className={dayLabelClasses}>{availability.label}:</span>
-      </span>
+      </div>
 
       <div className='flex gap-1 items-center flex-1 mt-1 lg:mt-0'>
         <div
           className={clsx(
-            'flex gap-1 items-center lg:max-w-30 overflow-x-hidden flex-1',
-            availability.moreCount > 0 ? ' lg:max-w-30' : ' lg:max-w-none',
+            'flex gap-0.5 items-center overflow-x-hidden flex-1',
+            availability.moreCount > 0 ? ' lg:max-w-20' : 'lg:max-w-none',
           )}
         >
           {availability.slots.map((item, i) => (

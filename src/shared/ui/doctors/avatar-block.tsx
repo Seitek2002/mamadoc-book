@@ -10,7 +10,7 @@ export const AvatarBlock = ({
   specialty: string;
 }) => {
   return (
-    <div className='w-32.25 h-42 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-center'>
+    <div className='w-32.25 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-stretch'>
       <Image
         src={photo}
         alt={fullName}
