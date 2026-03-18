@@ -114,14 +114,14 @@ export function OTPModal({
     >
       <div
         // Размеры и отступы враппера (Мобилка: 290px, ПК: 525px)
-        className='bg-white rounded-[10px] w-full max-w-[290px] md:max-w-[525px] p-[30px] flex flex-col items-center'
+        className='bg-white rounded-[10px] w-full max-w-72.5 md:max-w-131.25 p-7.5 flex flex-col items-center'
         onClick={(e) => e.stopPropagation()}
       >
         {/* Кнопка закрытия (без absolute position, выстроена по правому краю) */}
         <div className='w-full flex justify-end mb-2 md:mb-4'>
           <button
             onClick={onClose}
-            className='text-gray-400 hover:text-[#312E2E] transition-colors p-1'
+            className='text-gray-400 hover:text-dark transition-colors p-1'
             aria-label='Закрыть'
           >
             <svg
@@ -140,15 +140,15 @@ export function OTPModal({
         </div>
 
         {/* Заголовок */}
-        <div className='text-center w-full md:w-[465px] mb-[16px]'>
-          <p className='text-[14px] font-medium leading-[100%] text-[#312E2E]'>
+        <div className='text-center w-full md:w-116.25 mb-4'>
+          <p className='text-[14px] font-medium leading-[100%] text-dark'>
             Введите код OTP, отправленный на номер{' '}
             {maskPhoneNumber(phoneNumber)}
           </p>
         </div>
 
         {/* Поля ввода OTP */}
-        <div className='flex w-full justify-between md:justify-center md:gap-[10px] mb-[16px]'>
+        <div className='flex w-full justify-between md:justify-center md:gap-2.5 mb-4'>
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -163,7 +163,7 @@ export function OTPModal({
               onKeyDown={(e) => handleKeyDown(index, e)}
               onPaste={handlePaste}
               // Стили инпутов (Мобилка: 35x34, ПК: 70.83x54)
-              className='w-full max-w-[35px] md:max-w-[70.83px] h-[34px] md:h-[54px] bg-[#F8F7F7] border border-[#DBE0E6] rounded-[4px] md:rounded-[8px] text-center text-lg md:text-2xl font-medium text-[#312E2E] focus:border-[#0088FF] focus:outline-none focus:bg-white transition-colors'
+              className='w-full max-w-8.75 md:max-w-[70.83px] h-8.5 md:h-13.5 bg-[#F8F7F7] border border-[#DBE0E6] rounded-sm md:rounded-lg text-center text-lg md:text-2xl font-medium text-dark focus:border-accent focus:outline-none focus:bg-white transition-colors'
             />
           ))}
         </div>
@@ -173,7 +173,7 @@ export function OTPModal({
           onClick={handleSubmit}
           disabled={otp.join('').length !== 6}
           // Размеры кнопки (ПК: w-308px, h-41px | Мобилка: full, h-38px)
-          className='w-full md:w-[308px] h-[38px] md:h-[41px] bg-[#0088FF] disabled:opacity-50 hover:bg-[#0070d1] transition-colors text-white text-[14px] md:text-[16px] font-medium rounded-[10px] mb-[16px]'
+          className='w-full md:w-77 h-9.5 md:h-10.25 bg-accent disabled:opacity-50 hover:bg-[#0070d1] transition-colors text-white text-[14px] md:text-[16px] font-medium rounded-[10px] mb-4'
         >
           Продолжить
         </button>
@@ -181,13 +181,13 @@ export function OTPModal({
         {/* Таймер / Повторный запрос */}
         <div className='w-full text-center'>
           {timeLeft > 0 ? (
-            <span className='text-[12px] md:text-[14px] font-normal leading-[130%] text-[#7A7878]'>
+            <span className='text-[12px] md:text-[14px] font-normal leading-[130%] text-gray'>
               Запросить новый код через {formatTime(timeLeft)}
             </span>
           ) : (
             <button
               onClick={handleResend}
-              className='text-[12px] md:text-[14px] font-normal leading-[130%] text-[#0088FF] hover:underline cursor-pointer'
+              className='text-[12px] md:text-[14px] font-normal leading-[130%] text-accent hover:underline cursor-pointer'
             >
               Запросить код снова
             </button>
