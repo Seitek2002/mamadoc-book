@@ -24,6 +24,10 @@ async function DoctorsPage({ params }: { params: { id: string } }) {
           <ServicesSelection />
         </div>
       </div>
+
+      <button className='fixed left-[10%] bottom-4 text-2xl bg-primary font-medium text-white w-[80%] py-4 rounded-full'>
+        Записаться
+      </button>
     </div>
   );
 }

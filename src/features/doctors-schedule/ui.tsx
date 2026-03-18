@@ -7,7 +7,7 @@ import { DoctorsScheduleItem } from '@/shared/ui';
 export const DoctorsSchedule = ({ id }: { id: string }) => {
   const calendar = DOCTORS_DETAILS_LIST[+id - 1].availabilityCalendar;
 
-  const [selectedDate, setSelectedDate] = useState(calendar[0].date);
+  const [selectedDate, setSelectedDate] = useState<string>('');
 
   const selectedDay = calendar.find((day) => day.date === selectedDate);
   const currentSlots = selectedDay?.times || [];

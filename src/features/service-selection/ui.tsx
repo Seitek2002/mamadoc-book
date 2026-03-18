@@ -4,7 +4,7 @@ import { useState } from 'react';
 import clsx from 'clsx';
 
 const INITIAL_SERVICES = [
-  { id: 1, name: 'Общий осмотр', price: 1500, isSelected: true },
+  { id: 1, name: 'Общий осмотр', price: 1500, isSelected: false },
   { id: 2, name: 'Осмотр в зеркалах', price: 1500, isSelected: false },
   { id: 3, name: 'Сдача анализов', price: 1500, isSelected: false },
   { id: 4, name: 'Планирование семьи', price: 1500, isSelected: false },
