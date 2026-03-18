@@ -114,7 +114,7 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
   return (
     <>
       <div className='grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-4 items-start pb-24'>
-        <div className='lg:col-start-1 lg:row-start-1'>
+        <div className='lg:col-start-1 lg:row-start-1 mx-4'>
           <DoctorsDetailsCard id={id} />
         </div>
 

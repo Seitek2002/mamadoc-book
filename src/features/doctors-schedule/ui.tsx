@@ -26,7 +26,7 @@ export const DoctorsSchedule = ({
   const currentSlots = selectedDay?.times || [];
 
   return (
-    <div className='bg-white rounded-2xl py-5 h-full'>
+    <div className='bg-white rounded-2xl py-5 h-full w-full'>
       <div className='grid grid-cols-4 gap-2 max-h-41.25 overflow-auto px-4 py-2 md:grid-cols-6 custom-scrollbar'>
         {calendar.map((el) => (
           <DoctorsScheduleItem
