@@ -165,9 +165,13 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
         </div>
       </div>
 
+      <div className='fixed left-1/2 font-semibold -translate-x-1/2 rounded-full bottom-15 shadow-2xl flex justify-center items-center text-sm h-[30px] w-[147px] bg-[#FAF9F9] z-1 border border-white'>
+        13 марта, 13:00
+      </div>
+
       <button
         onClick={handleBooking}
-        className='fixed left-1/2 -translate-x-1/2 bottom-4 text-2xl bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-[90%] md:w-[80%] max-w-200 py-4 rounded-full shadow-xl active:scale-95 transition-all z-40'
+        className='fixed left-1/2 -translate-x-1/2 bottom-4 text-sm bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-[203px] md:w-[80%] max-w-200 py-2.5 rounded-full shadow-xl active:scale-95 transition-all z-40'
       >
         Записаться
       </button>
