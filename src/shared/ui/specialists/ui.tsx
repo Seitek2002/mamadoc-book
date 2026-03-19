@@ -19,7 +19,7 @@ export const Specialists = ({
     >
       <Image src={img} alt={title} width={32} height={32} />
       <h2 className='flex-1 text-sm md:text-base'>{title}</h2>
-      <ArrowIcon className='shrink-0 rotate-180' />
+      <ArrowIcon className='shrink-0 rotate-180 size-5' />
     </Link>
   );
 };

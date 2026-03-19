@@ -1,21 +1,23 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-// import clsx from 'clsx';
-// Предполагаю, что иконки из библиотеки shared/ui/icons.
-// Если нет, используйте простой svg или символ. Использую символ ▼.
+
+// Импорты иконок по твоей структуре
 import ArrowIcon from '@/shared/assets/icons/arrow.svg';
+import KgFlag from '@/shared/assets/icons/flags/kg.svg';
+import KzFlag from '@/shared/assets/icons/flags/kz.svg';
+import RuFlag from '@/shared/assets/icons/flags/ru.svg';
 
 interface Country {
   name: string;
-  flag: string; // Временная заглушка, использую эмодзи. Замените на путь к изображению.
+  flag: React.ElementType; // Типизация для SVG компонента
   code: string;
 }
 
 const COUNTRIES: Country[] = [
-  { name: 'КГ', flag: '🇰🇬', code: '+996' },
-  { name: 'КЗ', flag: '🇰🇿', code: '+7' },
-  { name: 'РУ', flag: '🇷🇺', code: '+7' },
+  { name: 'Кыргызстан', flag: KgFlag, code: '+996' },
+  { name: 'Россия', flag: RuFlag, code: '+7' },
+  { name: 'Казахстан', flag: KzFlag, code: '+7' },
 ];
 
 interface PhoneModalProps {
@@ -47,7 +49,6 @@ export function PhoneModal({ isOpen, onClose, onContinue }: PhoneModalProps) {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    // Запретить 0 первым символом
     if (value.startsWith('0')) {
       value = value.substring(1);
     }
@@ -55,9 +56,9 @@ export function PhoneModal({ isOpen, onClose, onContinue }: PhoneModalProps) {
   };
 
   const handleContinue = () => {
-    // Можно добавить валидацию длины номера
     if (phoneNumber.length > 0) {
       onContinue(selectedCountry.code + phoneNumber);
+      // Если onClose должен закрывать только после успешной обработки - оставляем тут
       onClose();
     }
   };
@@ -83,40 +84,44 @@ export function PhoneModal({ isOpen, onClose, onContinue }: PhoneModalProps) {
 
         <div className='border border-gray-200 rounded-lg p-3 flex items-center gap-2 w-full'>
           <div
-            className='flex items-center gap-1.5 cursor-pointer relative'
+            className='flex items-center gap-2 cursor-pointer relative'
             ref={dropdownRef}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
-            {/* Временная заглушка для флага, использую эмодзи. Замените на Image с правильным путем. */}
-            <span className='w-5 h-4 text-sm'>{selectedCountry.flag}</span>
-            {/* Временная заглушка для иконки стрелки, использую символ. Замените на ArrowIcon из библиотеки. */}
-            <span className='size-4 text-gray-400'>
-              <ArrowIcon className='rotate-90' />
+            {/* Флаг выбранной страны */}
+            <selectedCountry.flag className='w-6 h-4 shrink-0 rounded-[2px] object-cover' />
+
+            {/* Иконка стрелки с анимацией поворота */}
+            <span
+              className={`text-gray-400 transition-transform duration-200 flex items-center justify-center ${
+                isDropdownOpen ? 'rotate-90' : '-rotate-90'
+              }`}
+            >
+              <ArrowIcon className='w-3 h-3' />
             </span>
 
+            {/* Выпадающий список */}
             {isDropdownOpen && (
-              <div className='absolute top-full left-0 mt-1 bg-white border border-gray-100 rounded-lg shadow-lg z-10 w-40 max-h-40 overflow-y-auto'>
+              <div className='absolute top-full left-[-12px] mt-4 bg-white border border-gray-100 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] z-10 w-[180px] py-2'>
                 {COUNTRIES.map((country) => (
                   <div
                     key={country.name}
-                    className='flex items-center gap-2 p-2.5 hover:bg-gray-50 cursor-pointer'
-                    onClick={() => {
+                    className='flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors'
+                    onClick={(e) => {
+                      e.stopPropagation(); // Предотвращаем всплытие, чтобы контейнер не перехватил клик
                       setSelectedCountry(country);
                       setIsDropdownOpen(false);
                     }}
                   >
-                    <span className='w-5 h-4 text-sm'>{country.flag}</span>
+                    <country.flag className='w-6 h-4 shrink-0 rounded-[2px] object-cover' />
                     <span className='text-sm text-[#333]'>{country.name}</span>
-                    <span className='text-sm text-gray-400 ml-auto'>
-                      {country.code}
-                    </span>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          <span className='text-base text-[#333] font-medium'>
+          <span className='text-base text-[#333] font-medium ml-1'>
             {selectedCountry.code}
           </span>
 
