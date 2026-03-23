@@ -7,7 +7,7 @@ export const Doctors = ({ el }: { el: DoctorPreview }) => {
   return (
     <Link
       href={'/doctor/' + el.id}
-      className='flex lg:flex-col lg:max-w-57.5 rounded-[10px] overflow-hidden bg-white border border-[#E7E7EE]'
+      className='flex lg:flex-col lg:max-w-57.5 rounded-[10px] overflow-hidden bg-white border border-[#E7E7EE] active:scale-95'
     >
       <AvatarBlock {...el} />
       <div className='p-2.5 flex flex-col flex-1'>
