@@ -31,7 +31,7 @@ export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
     <div
       onClick={data.isAvailable ? onClick : undefined}
       className={clsx(
-        'flex flex-col border relative rounded-[10px] w-20 h-15 lg:w-auto lg:h-20 font-semibold p-2 transition-all cursor-pointer',
+        'flex flex-col border relative rounded-[10px] w-auto h-15 lg:w-auto lg:h-20 font-semibold p-2 transition-all cursor-pointer',
         !data.isAvailable && 'opacity-30 grayscale-[0.5] cursor-not-allowed',
         isActive ? 'bg-mint-100 border-success' : 'border-sky bg-[#ECF1FB]',
       )}
@@ -51,7 +51,7 @@ export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
 
       <span
         className={clsx(
-          'text-xs lg:text-sm flex justify-between items-center capitalize transition-all text-nowrap',
+          'text-xs xl:text-sm flex justify-between items-center capitalize transition-all text-nowrap',
           isActive ? 'text-success' : 'text-primary',
         )}
       >
@@ -72,7 +72,7 @@ export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
 
       <span
         className={clsx(
-          'text-[10px] lg:text-xs text-center text-nowrap font-semibold text-white py-0.5 rounded-full w-full mt-auto transition-all',
+          'text-[10px] xl:text-xs text-center text-nowrap font-semibold text-white py-0.5 rounded-full w-full mt-auto transition-all',
           isActive ? 'bg-success' : 'bg-primary',
         )}
       >
