@@ -16,7 +16,6 @@ interface BookingWrapperProps {
   id: string;
 }
 
-// Вспомогательный компонент Тултипа
 const Tooltip = ({ text }: { text: string }) => (
   <div className='absolute -top-12 left-1/2 -translate-x-1/2 bg-red-500 text-white text-sm py-2 px-4 rounded-lg shadow-md animate-in fade-in slide-in-from-bottom-2 duration-300 z-20 whitespace-nowrap'>
     {text}
@@ -27,39 +26,37 @@ const Tooltip = ({ text }: { text: string }) => (
 export function BookingWrapper({ id }: BookingWrapperProps) {
   const calendar = DOCTORS_DETAILS_LIST[+id - 1].availabilityCalendar;
 
-  // Стейты данных формы
   const [selectedDate, setSelectedDate] = useState(calendar[0].date);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
 
-  // Стейты модальных окон
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-
   const [currentPhone, setCurrentPhone] = useState('');
 
-  // Состояние ошибок
+  // Разделили ошибку расписания на дату и время
   const [errors, setErrors] = useState({
-    schedule: false,
+    date: false,
+    time: false,
     services: false,
   });
 
-  // Рефы для скролла
   const scheduleRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLDivElement>(null);
 
-  // Валидация и старт процесса записи
   const handleBooking = () => {
-    const isScheduleInvalid = !selectedDate || !selectedTime;
+    const isDateInvalid = !selectedDate;
+    const isTimeInvalid = !selectedTime;
     const isServicesInvalid = selectedServices.length === 0;
 
     setErrors({
-      schedule: isScheduleInvalid,
+      date: isDateInvalid,
+      time: isTimeInvalid,
       services: isServicesInvalid,
     });
 
-    if (isScheduleInvalid) {
+    if (isDateInvalid || isTimeInvalid) {
       scheduleRef.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
@@ -75,7 +72,6 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
       return;
     }
 
-    // Если всё ок — открываем модалку для ввода номера
     setIsPhoneModalOpen(true);
   };
 
@@ -94,7 +90,6 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
       phone: currentPhone,
       otp: otpCode,
     });
-
     setIsOtpModalOpen(false);
     setIsSuccessModalOpen(true);
   };
@@ -105,7 +100,6 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
 
   return (
     <>
-      {/* Добавил lg:pb-0, чтобы отступ снизу под плавающую кнопку был только на мобилках */}
       <div className='grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-4 items-start pb-24 lg:pb-0'>
         <div className='lg:col-start-1 lg:row-start-1 mx-4'>
           <DoctorsDetailsCard id={id} />
@@ -114,34 +108,32 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
         {/* Секция Расписания */}
         <div
           ref={scheduleRef}
-          className={clsx(
-            'lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-2xl transition-all duration-300 relative border-2',
-            errors.schedule ? 'border-red-500' : 'border-transparent',
-            'flex flex-col', // Добавил flex-col для правильного позиционирования кнопки внизу
-          )}
+          className='lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-2xl transition-all duration-300 relative flex flex-col'
         >
-          {errors.schedule && (
-            <Tooltip text='Пожалуйста, выберите дату и время' />
-          )}
+          {errors.date && <Tooltip text='Пожалуйста, выберите дату' />}
+          {errors.time && !errors.date && <Tooltip text='Пожалуйста, выберите время' />}
+          
           <DoctorsSchedule
             id={id}
             selectedDate={selectedDate}
             onDateChange={(val: string) => {
               setSelectedDate(val);
-              setErrors((prev) => ({ ...prev, schedule: false }));
+              setErrors((prev) => ({ ...prev, date: false }));
             }}
             selectedTime={selectedTime}
             onTimeChange={(val: string) => {
               setSelectedTime(val);
-              setErrors((prev) => ({ ...prev, schedule: false }));
+              setErrors((prev) => ({ ...prev, time: false }));
             }}
+            isDateError={errors.date}
+            isTimeError={errors.time}
           />
 
-          {/* ДЕСКТОПНАЯ КНОПКА ЗАПИСИ (Скрыта на мобилках) */}
+          {/* ДЕСКТОПНАЯ КНОПКА ЗАПИСИ */}
           <div className='hidden lg:flex justify-center w-full pt-4 pb-8'>
             <button
               onClick={handleBooking}
-              className='bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-77 h-10.25 text-base rounded-full shadow-md active:scale-95 transition-all'
+              className='bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-[308px] h-[41px] text-base rounded-full shadow-md active:scale-95 transition-all'
             >
               Записаться
             </button>
@@ -169,20 +161,17 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
         </div>
       </div>
 
-      {/* Плашка с датой — МОБИЛЬНАЯ (Скрыта на ПК через lg:hidden) */}
-      <div className='fixed lg:hidden left-1/2 font-semibold -translate-x-1/2 rounded-full bottom-15 shadow-2xl flex justify-center items-center text-sm h-7.5 w-36.75 bg-[#FAF9F9] z-10 border border-white'>
+      <div className='fixed lg:hidden left-1/2 font-semibold -translate-x-1/2 rounded-full bottom-15 shadow-2xl flex justify-center items-center text-sm h-[30px] w-[147px] bg-[#FAF9F9] z-10 border border-white'>
         13 марта, 13:00
       </div>
 
-      {/* МОБИЛЬНАЯ КНОПКА ЗАПИСИ (Скрыта на ПК через lg:hidden) */}
       <button
         onClick={handleBooking}
-        className='fixed lg:hidden left-1/2 -translate-x-1/2 bottom-4 text-sm bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-50.75 md:w-[80%] max-w-200 py-2.5 rounded-full shadow-xl active:scale-95 transition-all z-40'
+        className='fixed lg:hidden left-1/2 -translate-x-1/2 bottom-4 text-sm bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-[203px] md:w-[80%] max-w-200 py-2.5 rounded-full shadow-xl active:scale-95 transition-all z-40'
       >
         Записаться
       </button>
 
-      {/* Модалки */}
       <PhoneModal
         isOpen={isPhoneModalOpen}
         onClose={() => setIsPhoneModalOpen(false)}
