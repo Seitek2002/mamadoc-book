@@ -15,7 +15,7 @@ export const Specialists = ({
     <Link
       href={'/specialists/' + id}
       title={'Подробнее'}
-      className='bg-white p-4 flex items-center gap-4 rounded-[10px] w-full overflow-hidden md:w-auto border border-[#E6EAF0]'
+      className='bg-white p-4 flex items-center gap-4 rounded-[10px] w-full overflow-hidden md:w-auto border border-[#E6EAF0] active:scale-95'
     >
       <Image src={img} alt={title} width={32} height={32} placeholder='blur' />
       <h2 className='flex-1 text-sm md:text-base'>{title}</h2>
