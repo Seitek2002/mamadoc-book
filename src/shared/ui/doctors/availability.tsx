@@ -1,10 +1,10 @@
 import clsx from 'clsx';
-import { Availability } from '@/shared/assets/images/doctors';
+import { ApiAvailability } from '@/shared/mock';
 
 export const AvailabilityBlock = ({
   availability,
 }: {
-  availability: Availability;
+  availability: ApiAvailability;
 }) => {
   const isToday = availability.label === 'Сегодня';
   const isTomorrow = availability.label === 'Завтра';
@@ -46,7 +46,7 @@ export const AvailabilityBlock = ({
         <div
           className={clsx(
             'flex gap-0.5 items-center overflow-x-hidden flex-1',
-            availability.moreCount > 0 ? ' lg:max-w-20' : 'lg:max-w-none',
+            availability.more_count > 0 ? ' lg:max-w-20' : 'lg:max-w-none',
           )}
         >
           {availability.slots.map((item, i) => (
@@ -63,9 +63,9 @@ export const AvailabilityBlock = ({
           ))}
         </div>
 
-        {availability.moreCount > 0 && (
+        {availability.more_count > 0 && (
           <span className='text-xs lg:text-[10px] font-medium rounded-full px-2 py-0.5 text-white flex items-center gap-0.5 ml-auto bg-[#A0A0A0]'>
-            +{availability.moreCount}
+            +{availability.more_count}
             <ArrowIcon />
           </span>
         )}

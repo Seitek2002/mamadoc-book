@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { DOCTORS_DETAILS_LIST } from '@/shared/assets/images/doctors';
+import { MOCK_CALENDARS } from '@/shared/mock';
 import { DoctorsScheduleItem } from '@/shared/ui';
 
 interface DoctorsScheduleProps {
@@ -23,8 +23,7 @@ export const DoctorsSchedule = ({
   isDateError,
   isTimeError,
 }: DoctorsScheduleProps) => {
-  const calendar =
-    DOCTORS_DETAILS_LIST[Number(id) - 1]?.availabilityCalendar || [];
+  const calendar = MOCK_CALENDARS[Number(id)]?.data || [];
 
   const selectedDay = calendar.find((day) => day.date === selectedDate);
   const currentSlots = selectedDay?.times || [];

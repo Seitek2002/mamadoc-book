@@ -1,6 +1,6 @@
 'use client';
 
-import { DOCTORS_LIST } from '@/shared/assets/images/doctors';
+import { MOCK_DOCTORS_LIST } from '@/shared/mock';
 import Image from 'next/image';
 
 import qr from './image.png';
@@ -15,16 +15,18 @@ const AvatarCard = () => {
     <>
       <div className='w-full h-40.25 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-center'>
         <Image
-          src={DOCTORS_LIST[0].photo}
-          alt={DOCTORS_LIST[0].fullName}
+          src={MOCK_DOCTORS_LIST.data[0].photo_url}
+          alt={MOCK_DOCTORS_LIST.data[0].full_name}
+          width={400}
+          height={400}
           className='shrink-0 object-cover w-full h-full rounded-[10px] overflow-hidden'
         />
         <span className='absolute right-0 bottom-0 px-2 py-1.5 rounded-tl-[10px] inline text-xs font-semibold text-gray bg-white'>
-          {DOCTORS_LIST[0].specialty}
+          {MOCK_DOCTORS_LIST.data[0].specialty}
         </span>
       </div>
       <h2 className='font-medium text-sm text-dark'>
-        Сурапбеков Бекмамат Султангазиевич
+        {MOCK_DOCTORS_LIST.data[0].full_name}
       </h2>
     </>
   );

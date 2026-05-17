@@ -1,33 +1,36 @@
 import Image from 'next/image';
-import { DOCTORS_LIST } from '@/shared/assets/images/doctors';
+import { MOCK_DOCTORS_DETAILS } from '@/shared/mock';
 import { DoctorsName } from '@/shared/ui';
 
 import StarIcon from '@/shared/assets/icons/doctor-detail/start-icon.svg';
 
 export const DoctorsDetailsCard = ({ id }: { id: string }) => {
-  const person = DOCTORS_LIST[+id - 1];
+  const person = MOCK_DOCTORS_DETAILS[+id]?.data;
+  if (!person) return null;
 
   return (
     <div className='flex items-stretch gap-3 bg-white md:p-5 mt-6 lg:mt-0 rounded-2xl md:max-w-max md:mx-auto'>
       <div className='w-[36%] h-40 shrink-0 overflow-hidden rounded-tl-[5px] rounded-bl-[5px] lg:rounded-[5px]'>
         <Image
-          src={person.photo}
-          alt={person.fullName}
+          src={person.photo_url}
+          alt={person.full_name}
+          width={400}
+          height={400}
           className='shrink-0 object-cover w-full h-full'
         />
       </div>
       <div className='font-medium text-xs md:text-base flex flex-col justify-between py-2.5 lg:py-0'>
         <div>
           <DoctorsName
-            fullName='Сурапбеков Бекмамат Султангазиевич'
+            fullName={person.full_name}
             className='md:text-[18px]'
           />
-          <h2 className='text-gray mt-0.5'>{person.specialty}</h2>
+          <h2 className='text-gray mt-0.5'>{person.specialties[0]}</h2>
         </div>
         <div>
           <div className='flex items-center mt-1.5 gap-2.5'>
             <div className='flex items-center gap-1'>
-              <span className='font-semibold text-[#FEA500]'>4,8</span>
+              <span className='font-semibold text-[#FEA500]'>{person.rating}</span>
               <div className='flex'>
                 <StarIcon className='size-3 md:size-4' />
               </div>
@@ -41,9 +44,9 @@ export const DoctorsDetailsCard = ({ id }: { id: string }) => {
             >
               <circle cx='1' cy='1' r='1' fill='#312E2E' />
             </svg>
-            <span className='font-light'>5 отзывов</span>
+            <span className='font-light'>{person.reviews.total_count} отзывов</span>
           </div>
-          <h2 className='mt-0.5 font-medium'>Стаж 12 лет</h2>
+          <h2 className='mt-0.5 font-medium'>Стаж {person.experience_years} лет</h2>
         </div>
       </div>
     </div>

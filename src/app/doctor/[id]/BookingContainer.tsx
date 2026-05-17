@@ -10,7 +10,7 @@ import {
   OTPModal,
   SuccessModal,
 } from '@/features';
-import { DOCTORS_DETAILS_LIST } from '@/shared/assets/images/doctors';
+import { MOCK_CALENDARS } from '@/shared/mock';
 
 interface BookingWrapperProps {
   id: string;
@@ -24,9 +24,11 @@ const Tooltip = ({ text }: { text: string }) => (
 );
 
 export function BookingWrapper({ id }: BookingWrapperProps) {
-  const calendar = DOCTORS_DETAILS_LIST[+id - 1].availabilityCalendar;
+  const calendar = MOCK_CALENDARS[+id]?.data || [];
 
-  const [selectedDate, setSelectedDate] = useState(calendar[0].date);
+  const [selectedDate, setSelectedDate] = useState(
+    calendar.find((d) => d.is_available)?.date || calendar[0]?.date || '',
+  );
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
 

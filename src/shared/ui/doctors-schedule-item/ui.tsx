@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import { CalendarDay } from '@/shared/assets/images/doctors';
+import { ApiCalendarDay } from '@/shared/mock';
 
 type Props = {
-  data: CalendarDay;
+  data: ApiCalendarDay;
   isActive: boolean;
   onClick: () => void;
 };
@@ -29,10 +29,10 @@ export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
 
   return (
     <div
-      onClick={data.isAvailable ? onClick : undefined}
+      onClick={data.is_available ? onClick : undefined}
       className={clsx(
         'flex flex-col border relative rounded-[10px] w-auto h-15 lg:w-auto lg:h-20 font-semibold p-2 transition-all cursor-pointer',
-        !data.isAvailable && 'opacity-30 grayscale-[0.5] cursor-not-allowed',
+        !data.is_available && 'opacity-30 grayscale-[0.5] cursor-not-allowed',
         isActive ? 'bg-mint-100 border-success' : 'border-sky bg-[#ECF1FB]',
       )}
     >
@@ -76,7 +76,7 @@ export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
           isActive ? 'bg-success' : 'bg-primary',
         )}
       >
-        {getSlotsLabel(data.slotsCount)}
+        {getSlotsLabel(data.slots_count)}
       </span>
     </div>
   );

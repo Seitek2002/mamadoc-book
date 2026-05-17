@@ -1,5 +1,5 @@
 import SearchIcon from '@/shared/assets/icons/search/search-icon.svg';
-import { SPECIALISTS_LIST } from '@/shared/assets/images/specialists';
+import { MOCK_SPECIALISTS } from '@/shared/mock';
 import { Specialists } from '../specialists';
 
 export const SearchBar = () => {
@@ -18,8 +18,8 @@ export const SearchBar = () => {
         <SearchIcon className='shrink-0 absolute right-2.5' />
       </label>
       <div className='hidden lg:flex flex-col gap-2.5 my-3'>
-        {SPECIALISTS_LIST.map((el) => (
-          <Specialists key={el.id} {...el} />
+        {MOCK_SPECIALISTS.data.map((el) => (
+          <Specialists key={el.id} id={el.id} title={el.title} img={el.icon_url} />
         ))}
       </div>
     </div>
