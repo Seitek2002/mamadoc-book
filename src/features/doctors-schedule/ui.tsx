@@ -1,11 +1,11 @@
 'use client';
 
 import clsx from 'clsx';
-import { MOCK_CALENDARS } from '@/shared/mock';
+import type { ApiCalendarDay } from '@/shared/mock';
 import { DoctorsScheduleItem } from '@/shared/ui';
 
 interface DoctorsScheduleProps {
-  id: string;
+  calendar: ApiCalendarDay[];
   selectedDate: string;
   onDateChange: (date: string) => void;
   selectedTime: string;
@@ -15,7 +15,7 @@ interface DoctorsScheduleProps {
 }
 
 export const DoctorsSchedule = ({
-  id,
+  calendar,
   selectedDate,
   onDateChange,
   selectedTime,
@@ -23,7 +23,6 @@ export const DoctorsSchedule = ({
   isDateError,
   isTimeError,
 }: DoctorsScheduleProps) => {
-  const calendar = MOCK_CALENDARS[Number(id)]?.data || [];
 
   const selectedDay = calendar.find((day) => day.date === selectedDate);
   const currentSlots = selectedDay?.times || [];

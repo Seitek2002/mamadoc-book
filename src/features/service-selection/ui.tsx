@@ -1,23 +1,16 @@
 'use client';
 
 import clsx from 'clsx';
-
-const INITIAL_SERVICES = [
-  { id: 1, name: 'Общий осмотр', price: 1500, isSelected: false },
-  { id: 2, name: 'Осмотр в зеркалах', price: 1500, isSelected: false },
-  { id: 3, name: 'Сдача анализов', price: 1500, isSelected: false },
-  { id: 4, name: 'Планирование семьи', price: 1500, isSelected: false },
-  { id: 5, name: 'Лечение бесплодия', price: 1500, isSelected: false },
-  { id: 6, name: 'Сбор анамнеза', price: 1500, isSelected: false },
-  { id: 7, name: 'Повторный прием', price: 1500, isSelected: false },
-];
+import type { ApiService } from '@/shared/mock';
 
 interface ServicesSelectionProps {
+  services: ApiService[];
   selectedServices: number[];
   onChange: (services: number[]) => void;
 }
 
 export function ServicesSelection({
+  services,
   selectedServices,
   onChange,
 }: ServicesSelectionProps) {
@@ -38,7 +31,7 @@ export function ServicesSelection({
       </div>
 
       <div className='flex flex-col gap-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar'>
-        {INITIAL_SERVICES.map((service) => {
+        {services.map((service) => {
           const isSelected = selectedServices.includes(service.id);
           return (
             <button

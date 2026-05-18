@@ -1,12 +1,10 @@
 import Image from 'next/image';
-import { MOCK_DOCTORS_DETAILS } from '@/shared/mock';
+import type { ApiDoctorDetail } from '@/shared/mock';
 import { DoctorsName } from '@/shared/ui';
 
 import StarIcon from '@/shared/assets/icons/doctor-detail/start-icon.svg';
 
-export const DoctorsDetailsCard = ({ id }: { id: string }) => {
-  const person = MOCK_DOCTORS_DETAILS[+id]?.data;
-  if (!person) return null;
+export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail }) => {
 
   return (
     <div className='flex items-stretch gap-3 bg-white md:p-5 mt-6 lg:mt-0 rounded-2xl md:max-w-max md:mx-auto'>

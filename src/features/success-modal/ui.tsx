@@ -1,49 +1,60 @@
 'use client';
 
-import { MOCK_DOCTORS_LIST } from '@/shared/mock';
 import Image from 'next/image';
+import type { BookingResult } from '@/shared/api';
 
 import qr from './image.png';
 
 interface SuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
+  booking: BookingResult | null;
 }
 
-const AvatarCard = () => {
+const AvatarCard = ({ booking }: { booking: BookingResult }) => {
   return (
     <>
       <div className='w-full h-40.25 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-center'>
         <Image
-          src={MOCK_DOCTORS_LIST.data[0].photo_url}
-          alt={MOCK_DOCTORS_LIST.data[0].full_name}
+          src={booking.doctor.photo_url}
+          alt={booking.doctor.full_name}
           width={400}
           height={400}
           className='shrink-0 object-cover w-full h-full rounded-[10px] overflow-hidden'
         />
         <span className='absolute right-0 bottom-0 px-2 py-1.5 rounded-tl-[10px] inline text-xs font-semibold text-gray bg-white'>
-          {MOCK_DOCTORS_LIST.data[0].specialty}
+          {booking.doctor.specialty}
         </span>
       </div>
       <h2 className='font-medium text-sm text-dark'>
-        {MOCK_DOCTORS_LIST.data[0].full_name}
+        {booking.doctor.full_name}
       </h2>
     </>
   );
 };
 
-const QRBlock = () => {
+const QRBlock = ({ code }: { code: string }) => {
   return (
     <>
       <Image src={qr} alt='' className='size-34.25' />
       <div className='flex justify-center items-center font-medium text-sm mt-1.5'>
-        TG76789
+        {code}
       </div>
     </>
   );
 };
 
-export function SuccessModal({ isOpen, onClose }: SuccessModalProps) {
+function formatDate(isoDate: string): string {
+  const date = new Date(isoDate);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const weekday = date.toLocaleDateString('ru-RU', { weekday: 'short' }).replace('.', '');
+  return `${day}.${month}.${year} (${weekday})`;
+}
+
+export function SuccessModal({ isOpen, onClose, booking }: SuccessModalProps) {
+  if (!booking) return null;
   return (
     <div
       className={`fixed inset-0 z-40 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${
@@ -94,41 +105,23 @@ export function SuccessModal({ isOpen, onClose }: SuccessModalProps) {
             Ваша запись подтверждена!
           </h2>
           <div className='lg:hidden'>
-            <AvatarCard />
+            <AvatarCard booking={booking} />
           </div>
 
           <div className='w-full border-t border-gray'>
             <div className='flex items-center justify-between w-full lg:w-[70%] py-2 lg:py-4'>
               <div className='flex items-start w-1/3 gap-1.5 border-r border-gray'>
-                <svg
-                  className='size-4 lg:size-6 shrink-0'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  viewBox='0 0 24 24'
-                >
+                <svg className='size-4 lg:size-6 shrink-0' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' viewBox='0 0 24 24'>
                   <circle cx='12' cy='12' r='10'></circle>
                   <polyline points='12 6 12 12 16 14'></polyline>
                 </svg>
                 <div>
                   <div className='leading-4 text-xs lg:text-sm'>Время</div>
-                  <div className='text-base font-medium lg:text-[18px]'>
-                    16:30
-                  </div>
+                  <div className='text-base font-medium lg:text-[18px]'>{booking.time}</div>
                 </div>
               </div>
               <div className='flex items-start gap-1.5'>
-                <svg
-                  className='size-4 lg:size-6 shrink-0'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  viewBox='0 0 24 24'
-                >
+                <svg className='size-4 lg:size-6 shrink-0' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' viewBox='0 0 24 24'>
                   <rect x='3' y='4' width='18' height='18' rx='2' ry='2'></rect>
                   <line x1='16' y1='2' x2='16' y2='6'></line>
                   <line x1='8' y1='2' x2='8' y2='6'></line>
@@ -136,64 +129,40 @@ export function SuccessModal({ isOpen, onClose }: SuccessModalProps) {
                 </svg>
                 <div>
                   <div className='leading-4 text-xs lg:text-sm'>Дата</div>
-                  <div className='text-base font-medium lg:text-[18px]'>
-                    13.03.2023 (Вт)
-                  </div>
+                  <div className='text-base font-medium lg:text-[18px]'>{formatDate(booking.date)}</div>
                 </div>
               </div>
             </div>
             <div className='border-t border-gray'></div>
             <div className='flex items-center justify-between w-full lg:w-[67%] py-2 lg:py-4'>
               <div className='flex items-start w-1/3 gap-2'>
-                <svg
-                  className='size-4 lg:size-6 shrink-0'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  viewBox='0 0 24 24'
-                >
+                <svg className='size-4 lg:size-6 shrink-0' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' viewBox='0 0 24 24'>
                   <path d='M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z'></path>
                   <line x1='3' y1='6' x2='21' y2='6'></line>
                   <path d='M16 10a4 4 0 0 1-8 0'></path>
                 </svg>
                 <div>
-                  <div className='leading-4 text-xs mb-2 lg:text-sm'>
-                    Услуга
-                  </div>
-                  <div className='leading-4 text-xs lg:text-sm'>Категория</div>
+                  <div className='leading-4 text-xs mb-2 lg:text-sm'>Услуга</div>
+                  <div className='leading-4 text-xs lg:text-sm'>Специализация</div>
                 </div>
               </div>
               <div className='flex items-start gap-1.5'>
                 <div>
                   <div className='text-sm font-medium mb-1 lg:text-sm'>
-                    Общий осмотр
+                    {booking.services.map((s) => s.name).join(', ')}
                   </div>
-                  <div className='text-sm font-medium lg:text-sm'>
-                    Гинекология
-                  </div>
+                  <div className='text-sm font-medium lg:text-sm'>{booking.doctor.specialty}</div>
                 </div>
               </div>
             </div>
             <div className='flex items-start gap-2 w-full border-t border-gray py-2 lg:py-4'>
-              <svg
-                className='size-4 lg:size-6 shrink-0'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                viewBox='0 0 24 24'
-              >
+              <svg className='size-4 lg:size-6 shrink-0' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' viewBox='0 0 24 24'>
                 <path d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'></path>
                 <circle cx='12' cy='10' r='3'></circle>
               </svg>
               <div>
                 <div className='leading-4 text-xs mb-2 lg:text-sm'>Адрес</div>
-                <div className='leading-4 text-xs font-medium lg:text-sm'>
-                  Орозбекова 112, Бишкек
-                </div>
+                <div className='leading-4 text-xs font-medium lg:text-sm'>{booking.doctor.clinic_address}</div>
               </div>
             </div>
           </div>
@@ -211,15 +180,15 @@ export function SuccessModal({ isOpen, onClose }: SuccessModalProps) {
           </ul>
 
           <div className='lg:hidden'>
-            <QRBlock />
+            <QRBlock code={booking.confirmation_code} />
           </div>
         </div>
         <div className='border-l border-gray pl-6 hidden lg:flex flex-col justify-center items-center gap-7.5'>
           <div className='hidden lg:block'>
-            <AvatarCard />
+            <AvatarCard booking={booking} />
           </div>
           <div className='hidden lg:block'>
-            <QRBlock />
+            <QRBlock code={booking.confirmation_code} />
           </div>
         </div>
       </div>

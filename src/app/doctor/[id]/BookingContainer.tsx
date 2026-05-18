@@ -10,10 +10,20 @@ import {
   OTPModal,
   SuccessModal,
 } from '@/features';
-import { MOCK_CALENDARS } from '@/shared/mock';
+import type { ApiDoctorDetail, ApiCalendarDay } from '@/shared/mock';
+import {
+  sendOtp,
+  verifyOtp,
+  createBooking,
+  setToken,
+  type BookingResult,
+  type ApiError,
+} from '@/shared/api';
 
 interface BookingWrapperProps {
   id: string;
+  doctor: ApiDoctorDetail;
+  calendar: ApiCalendarDay[];
 }
 
 const Tooltip = ({ text }: { text: string }) => (
@@ -23,26 +33,25 @@ const Tooltip = ({ text }: { text: string }) => (
   </div>
 );
 
-export function BookingWrapper({ id }: BookingWrapperProps) {
-  const calendar = MOCK_CALENDARS[+id]?.data || [];
+export function BookingWrapper({ id, doctor, calendar }: BookingWrapperProps) {
+  const firstAvailable = calendar.find((d) => d.is_available);
 
-  const [selectedDate, setSelectedDate] = useState(
-    calendar.find((d) => d.is_available)?.date || calendar[0]?.date || '',
-  );
-  const [selectedTime, setSelectedTime] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState(firstAvailable?.date ?? '');
+  const [selectedTime, setSelectedTime] = useState('');
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
 
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [currentPhone, setCurrentPhone] = useState('');
+  const [bookingResult, setBookingResult] = useState<BookingResult | null>(null);
 
-  // Разделили ошибку расписания на дату и время
-  const [errors, setErrors] = useState({
-    date: false,
-    time: false,
-    services: false,
-  });
+  const [phoneError, setPhoneError] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [isPhoneLoading, setIsPhoneLoading] = useState(false);
+  const [isOtpLoading, setIsOtpLoading] = useState(false);
+
+  const [errors, setErrors] = useState({ date: false, time: false, services: false });
 
   const scheduleRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLDivElement>(null);
@@ -52,78 +61,97 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
     const isTimeInvalid = !selectedTime;
     const isServicesInvalid = selectedServices.length === 0;
 
-    setErrors({
-      date: isDateInvalid,
-      time: isTimeInvalid,
-      services: isServicesInvalid,
-    });
+    setErrors({ date: isDateInvalid, time: isTimeInvalid, services: isServicesInvalid });
 
     if (isDateInvalid || isTimeInvalid) {
-      scheduleRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+      scheduleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-
     if (isServicesInvalid) {
-      servicesRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+      servicesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
     setIsPhoneModalOpen(true);
   };
 
-  const handlePhoneSubmit = (phoneNumber: string) => {
-    setCurrentPhone(phoneNumber);
-    setIsPhoneModalOpen(false);
-    setIsOtpModalOpen(true);
+  const handlePhoneSubmit = async (phoneNumber: string) => {
+    setPhoneError('');
+    setIsPhoneLoading(true);
+    try {
+      await sendOtp({ phone: phoneNumber });
+      setCurrentPhone(phoneNumber);
+      setIsPhoneModalOpen(false);
+      setIsOtpModalOpen(true);
+    } catch (err) {
+      const e = err as ApiError;
+      setPhoneError(e.message ?? 'Ошибка отправки кода');
+    } finally {
+      setIsPhoneLoading(false);
+    }
   };
 
-  const handleOtpSubmit = (otpCode: string) => {
-    console.log('Отправляем данные на сервер:', {
-      doctorId: id,
-      selectedDate,
-      selectedTime,
-      selectedServices,
-      phone: currentPhone,
-      otp: otpCode,
-    });
-    setIsOtpModalOpen(false);
-    setIsSuccessModalOpen(true);
+  const handleResend = async () => {
+    setOtpError('');
+    try {
+      await sendOtp({ phone: currentPhone });
+    } catch (err) {
+      const e = err as ApiError;
+      setOtpError(e.message ?? 'Ошибка повторной отправки');
+    }
   };
 
-  const handleSuccessClose = () => {
-    setIsSuccessModalOpen(false);
+  const handleOtpSubmit = async (otpCode: string) => {
+    setOtpError('');
+    setIsOtpLoading(true);
+    try {
+      const auth = await verifyOtp({ phone: currentPhone, code: otpCode });
+      setToken(auth.access_token);
+
+      const result = await createBooking(
+        {
+          doctor_id: Number(id),
+          date: selectedDate,
+          time: selectedTime,
+          service_ids: selectedServices,
+        },
+        auth.access_token,
+      );
+
+      setBookingResult(result.data);
+      setIsOtpModalOpen(false);
+      setIsSuccessModalOpen(true);
+    } catch (err) {
+      const e = err as ApiError;
+      setOtpError(e.message ?? 'Ошибка записи');
+    } finally {
+      setIsOtpLoading(false);
+    }
   };
 
   return (
     <>
       <div className='grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-4 items-start pb-24 lg:pb-0'>
         <div className='lg:col-start-1 lg:row-start-1 mx-4'>
-          <DoctorsDetailsCard id={id} />
+          <DoctorsDetailsCard doctor={doctor} />
         </div>
 
-        {/* Секция Расписания */}
         <div
           ref={scheduleRef}
           className='lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-2xl transition-all duration-300 relative flex flex-col'
         >
           {errors.date && <Tooltip text='Пожалуйста, выберите дату' />}
           {errors.time && !errors.date && <Tooltip text='Пожалуйста, выберите время' />}
-          
+
           <DoctorsSchedule
-            id={id}
+            calendar={calendar}
             selectedDate={selectedDate}
-            onDateChange={(val: string) => {
+            onDateChange={(val) => {
               setSelectedDate(val);
               setErrors((prev) => ({ ...prev, date: false }));
             }}
             selectedTime={selectedTime}
-            onTimeChange={(val: string) => {
+            onTimeChange={(val) => {
               setSelectedTime(val);
               setErrors((prev) => ({ ...prev, time: false }));
             }}
@@ -131,7 +159,6 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
             isTimeError={errors.time}
           />
 
-          {/* ДЕСКТОПНАЯ КНОПКА ЗАПИСИ */}
           <div className='hidden lg:flex justify-center w-full pt-4 pb-8'>
             <button
               onClick={handleBooking}
@@ -142,7 +169,6 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
           </div>
         </div>
 
-        {/* Секция Услуг */}
         <div
           ref={servicesRef}
           className={clsx(
@@ -150,12 +176,11 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
             errors.services ? 'border-red-500' : 'border-transparent',
           )}
         >
-          {errors.services && (
-            <Tooltip text='Пожалуйста, выберите хотя бы одну услугу' />
-          )}
+          {errors.services && <Tooltip text='Пожалуйста, выберите хотя бы одну услугу' />}
           <ServicesSelection
+            services={doctor.services}
             selectedServices={selectedServices}
-            onChange={(val: number[]) => {
+            onChange={(val) => {
               setSelectedServices(val);
               setErrors((prev) => ({ ...prev, services: false }));
             }}
@@ -164,7 +189,7 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
       </div>
 
       <div className='fixed lg:hidden left-1/2 font-semibold -translate-x-1/2 rounded-full bottom-15 shadow-2xl flex justify-center items-center text-sm h-7.5 w-36.75 bg-[#FAF9F9] z-10 border border-white'>
-        13 марта, 13:00
+        {selectedDate && selectedTime ? `${selectedDate}, ${selectedTime}` : 'Выберите время'}
       </div>
 
       <button
@@ -176,18 +201,27 @@ export function BookingWrapper({ id }: BookingWrapperProps) {
 
       <PhoneModal
         isOpen={isPhoneModalOpen}
-        onClose={() => setIsPhoneModalOpen(false)}
+        onClose={() => { setIsPhoneModalOpen(false); setPhoneError(''); }}
         onContinue={handlePhoneSubmit}
+        error={phoneError}
+        isLoading={isPhoneLoading}
       />
 
       <OTPModal
         isOpen={isOtpModalOpen}
-        onClose={() => setIsOtpModalOpen(false)}
+        onClose={() => { setIsOtpModalOpen(false); setOtpError(''); }}
         onSubmit={handleOtpSubmit}
+        onResend={handleResend}
         phoneNumber={currentPhone}
+        error={otpError}
+        isLoading={isOtpLoading}
       />
 
-      <SuccessModal isOpen={isSuccessModalOpen} onClose={handleSuccessClose} />
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        booking={bookingResult}
+      />
     </>
   );
 }

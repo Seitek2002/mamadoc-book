@@ -6,7 +6,10 @@ interface OtpModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (otp: string) => void;
+  onResend: () => void;
   phoneNumber: string;
+  error?: string;
+  isLoading?: boolean;
 }
 
 // Маскировка номера
@@ -19,7 +22,10 @@ export function OTPModal({
   isOpen,
   onClose,
   onSubmit,
+  onResend,
   phoneNumber,
+  error,
+  isLoading,
 }: OtpModalProps) {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
   const [timeLeft, setTimeLeft] = useState(60);
@@ -93,8 +99,8 @@ export function OTPModal({
 
   const handleResend = () => {
     setTimeLeft(60);
-    // Логика повторной отправки
-    console.log('Код отправлен повторно на', phoneNumber);
+    setOtp(Array(6).fill(''));
+    onResend();
   };
 
   const formatTime = (seconds: number) => {
@@ -170,13 +176,17 @@ export function OTPModal({
           ))}
         </div>
 
+        {error && (
+          <p className='w-full text-sm text-red-500 text-center -mt-2 mb-2'>{error}</p>
+        )}
+
         {/* Кнопка "Продолжить" */}
         <button
           onClick={handleSubmit}
-          disabled={otp.join('').length !== 6}
+          disabled={otp.join('').length !== 6 || isLoading}
           className='w-full md:w-77 h-9.5 md:h-10.25 bg-accent disabled:opacity-50 hover:bg-[#0070d1] transition-colors text-white text-[14px] md:text-[16px] font-medium rounded-[10px] mb-4'
         >
-          Продолжить
+          {isLoading ? 'Проверка...' : 'Продолжить'}
         </button>
 
         {/* Таймер / Повторный запрос */}

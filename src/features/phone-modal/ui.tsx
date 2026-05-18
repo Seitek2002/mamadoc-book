@@ -24,9 +24,11 @@ interface PhoneModalProps {
   isOpen: boolean;
   onClose: () => void;
   onContinue: (phoneNumber: string) => void;
+  error?: string;
+  isLoading?: boolean;
 }
 
-export function PhoneModal({ isOpen, onClose, onContinue }: PhoneModalProps) {
+export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading }: PhoneModalProps) {
   const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRIES[0]);
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
@@ -58,8 +60,6 @@ export function PhoneModal({ isOpen, onClose, onContinue }: PhoneModalProps) {
   const handleContinue = () => {
     if (phoneNumber.length > 0) {
       onContinue(selectedCountry.code + phoneNumber);
-      // Если onClose должен закрывать только после успешной обработки - оставляем тут
-      onClose();
     }
   };
 
@@ -134,11 +134,16 @@ export function PhoneModal({ isOpen, onClose, onContinue }: PhoneModalProps) {
           />
         </div>
 
+        {error && (
+          <p className='w-full text-sm text-red-500 text-center -mt-2'>{error}</p>
+        )}
+
         <button
           onClick={handleContinue}
-          className='w-full bg-[#007BFF] hover:bg-[#0069D9] transition-colors text-white text-base font-semibold py-3.5 rounded-full mt-2'
+          disabled={isLoading}
+          className='w-full bg-[#007BFF] hover:bg-[#0069D9] disabled:opacity-60 transition-colors text-white text-base font-semibold py-3.5 rounded-full mt-2'
         >
-          Продолжить
+          {isLoading ? 'Отправка...' : 'Продолжить'}
         </button>
       </div>
     </div>

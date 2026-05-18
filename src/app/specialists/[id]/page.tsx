@@ -1,9 +1,8 @@
 import { DoctorsList } from '@/widgets';
 import { PageTitle, SearchBar } from '@/shared/ui';
 
-const page = async ({ params }: { params: { id: string } }) => {
+const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
-  console.log(id);
 
   return (
     <div className='max-w-7xl mx-auto px-4'>
@@ -13,7 +12,7 @@ const page = async ({ params }: { params: { id: string } }) => {
         <div className='w-full lg:w-[33%]'>
           <SearchBar />
         </div>
-        <DoctorsList />
+        <DoctorsList specialistId={Number(id)} />
       </div>
     </div>
   );
