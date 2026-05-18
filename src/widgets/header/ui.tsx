@@ -7,13 +7,15 @@ import BellIcon from '@/shared/assets/icons/header/bell.svg';
 export const Header = () => {
   return (
     <header className='py-4 px-4 flex justify-between items-center md:bg-white'>
-      <Image
-        src={logo}
-        alt='logo'
-        width={94}
-        height={30}
-        className='shrink-0'
-      />
+      <Link href={'/'}>
+        <Image
+          src={logo}
+          alt='logo'
+          width={94}
+          height={30}
+          className='shrink-0'
+        />
+      </Link>
 
       {/* <BurgerMenuIcon className='md:hidden' /> */}
       <div className='hidden md:flex gap-4 text-sm items-center'>
