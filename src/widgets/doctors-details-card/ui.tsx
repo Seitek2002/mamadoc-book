@@ -43,7 +43,7 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
             >
               <circle cx='1' cy='1' r='1' fill='#312E2E' />
             </svg>
-            <span className='font-light'>{person.reviews.total_count} отзывов</span>
+            <span className='font-normal'>{person.reviews.total_count} отзывов</span>
           </div>
           <h2 className='mt-0.5 font-medium'>Стаж {person.experience_years} лет</h2>
         </div>

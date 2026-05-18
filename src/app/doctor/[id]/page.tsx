@@ -1,6 +1,17 @@
 import { PageTitle } from '@/shared/ui';
 import { BookingWrapper } from './BookingContainer';
-import { getDoctorById, getDoctorCalendar } from '@/shared/api';
+import { getDoctorById, getDoctorCalendar, getDoctors } from '@/shared/api';
+
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  try {
+    const { data } = await getDoctors({ page: 1 });
+    return data.map((d) => ({ id: String(d.id) }));
+  } catch {
+    return [];
+  }
+}
 
 async function DoctorsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
