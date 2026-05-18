@@ -14,6 +14,7 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
           alt={person.full_name}
           width={400}
           height={400}
+          priority
           className='shrink-0 object-cover w-full h-full'
         />
       </div>

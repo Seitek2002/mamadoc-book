@@ -16,6 +16,7 @@ export const AvatarBlock = ({
         alt={full_name}
         width={400}
         height={400}
+        loading='lazy'
         className='shrink-0 object-cover w-full h-full'
       />
       <span className='absolute right-0 bottom-0 px-2 py-1.5 rounded-tl-[10px] hidden lg:inline text-xs font-semibold text-gray bg-white'>
