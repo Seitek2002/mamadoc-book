@@ -10,7 +10,7 @@ import {
   OTPModal,
   SuccessModal,
 } from '@/features';
-import type { ApiDoctorDetail, ApiCalendarDay } from '@/shared/mock';
+import type { ApiDoctorDetail, ApiCalendarDay, ApiPhoneCountry } from '@/shared/mock';
 import {
   sendOtp,
   verifyOtp,
@@ -24,6 +24,7 @@ interface BookingWrapperProps {
   id: string;
   doctor: ApiDoctorDetail;
   calendar: ApiCalendarDay[];
+  countries?: ApiPhoneCountry[];
 }
 
 const Tooltip = ({ text }: { text: string }) => (
@@ -33,7 +34,7 @@ const Tooltip = ({ text }: { text: string }) => (
   </div>
 );
 
-export function BookingWrapper({ id, doctor, calendar }: BookingWrapperProps) {
+export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapperProps) {
   const firstAvailable = calendar.find((d) => d.is_available);
 
   const [selectedDate, setSelectedDate] = useState(firstAvailable?.date ?? '');
@@ -205,6 +206,7 @@ export function BookingWrapper({ id, doctor, calendar }: BookingWrapperProps) {
         onContinue={handlePhoneSubmit}
         error={phoneError}
         isLoading={isPhoneLoading}
+        countries={countries}
       />
 
       <OTPModal

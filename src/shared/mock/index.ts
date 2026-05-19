@@ -113,6 +113,29 @@ export interface ApiDoctorDetail {
     total_count: number;
     items: ApiReview[];
   };
+  paylink_enabled?: boolean;
+}
+
+export interface ApiFeatureFlags {
+  branches_enabled: boolean;
+  paylink_enabled: boolean;
+  paylink_by_organization: boolean;
+  paylink_by_professional: boolean;
+}
+
+export interface ApiPhoneCountry {
+  code: string;
+  name: string;
+  dial_code: string;
+  flag: string;
+}
+
+export interface ApiBranch {
+  id: number;
+  organization_id: number;
+  organization_name: string;
+  address: string;
+  professionals_count: number;
 }
 
 // ─── Специализации ───────────────────────────────────────────────────────────

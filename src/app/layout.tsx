@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
 import { Header } from '@/widgets';
+import { FeaturesProvider } from '@/shared/providers/features-provider';
+import { getFeatures } from '@/shared/api';
 import './globals.css';
 
 const montserrat = Montserrat({
@@ -19,11 +21,18 @@ export const viewport = {
   themeColor: '#ffffff',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const features = await getFeatures().catch(() => ({
+    branches_enabled: false,
+    paylink_enabled: false,
+    paylink_by_organization: false,
+    paylink_by_professional: false,
+  }));
+
   return (
     <html lang='en'>
       <head>
@@ -32,7 +41,9 @@ export default function RootLayout({
       </head>
       <body className={`${montserrat.className} ${montserrat.variable} antialiased bg-[#F6F6F6]`}>
         <Header />
-        <main>{children}</main>
+        <FeaturesProvider features={features}>
+          <main>{children}</main>
+        </FeaturesProvider>
       </body>
     </html>
   );

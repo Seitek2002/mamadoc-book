@@ -2,23 +2,37 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-// Импорты иконок по твоей структуре
 import ArrowIcon from '@/shared/assets/icons/arrow.svg';
 import KgFlag from '@/shared/assets/icons/flags/kg.svg';
 import KzFlag from '@/shared/assets/icons/flags/kz.svg';
 import RuFlag from '@/shared/assets/icons/flags/ru.svg';
+import type { ApiPhoneCountry } from '@/shared/mock';
 
 interface Country {
   name: string;
-  flag: React.ElementType; // Типизация для SVG компонента
+  flag: React.ElementType | null;
   code: string;
 }
 
-const COUNTRIES: Country[] = [
+const FLAG_MAP: Record<string, React.ElementType> = {
+  KG: KgFlag,
+  KZ: KzFlag,
+  RU: RuFlag,
+};
+
+const DEFAULT_COUNTRIES: Country[] = [
   { name: 'Кыргызстан', flag: KgFlag, code: '+996' },
   { name: 'Россия', flag: RuFlag, code: '+7' },
   { name: 'Казахстан', flag: KzFlag, code: '+7' },
 ];
+
+function mapApiCountries(apiCountries: ApiPhoneCountry[]): Country[] {
+  return apiCountries.map((c) => ({
+    name: c.name,
+    flag: FLAG_MAP[c.code] ?? null,
+    code: c.dial_code,
+  }));
+}
 
 interface PhoneModalProps {
   isOpen: boolean;
@@ -26,10 +40,12 @@ interface PhoneModalProps {
   onContinue: (phoneNumber: string) => void;
   error?: string;
   isLoading?: boolean;
+  countries?: ApiPhoneCountry[];
 }
 
-export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading }: PhoneModalProps) {
-  const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRIES[0]);
+export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, countries }: PhoneModalProps) {
+  const resolvedCountries = countries && countries.length > 0 ? mapApiCountries(countries) : DEFAULT_COUNTRIES;
+  const [selectedCountry, setSelectedCountry] = useState<Country>(resolvedCountries[0]);
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -88,8 +104,11 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading }: Ph
             ref={dropdownRef}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
-            {/* Флаг выбранной страны */}
-            <selectedCountry.flag className='w-6 h-4 shrink-0 rounded-[2px] object-cover' />
+            {selectedCountry.flag ? (
+              <selectedCountry.flag className='w-6 h-4 shrink-0 rounded-xs object-cover' />
+            ) : (
+              <span className='w-6 h-4 shrink-0 flex items-center justify-center text-xs font-medium text-gray-600'>{selectedCountry.code}</span>
+            )}
 
             {/* Иконка стрелки с анимацией поворота */}
             <span
@@ -103,17 +122,21 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading }: Ph
             {/* Выпадающий список */}
             {isDropdownOpen && (
               <div className='absolute top-full left-[-12px] mt-4 bg-white border border-gray-100 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] z-10 w-[180px] py-2'>
-                {COUNTRIES.map((country) => (
+                {resolvedCountries.map((country) => (
                   <div
                     key={country.name}
                     className='flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors'
                     onClick={(e) => {
-                      e.stopPropagation(); // Предотвращаем всплытие, чтобы контейнер не перехватил клик
+                      e.stopPropagation();
                       setSelectedCountry(country);
                       setIsDropdownOpen(false);
                     }}
                   >
-                    <country.flag className='w-6 h-4 shrink-0 rounded-[2px] object-cover' />
+                    {country.flag ? (
+                      <country.flag className='w-6 h-4 shrink-0 rounded-xs object-cover' />
+                    ) : (
+                      <span className='w-6 h-4 shrink-0 flex items-center justify-center text-xs font-medium text-gray-600'>{country.code}</span>
+                    )}
                     <span className='text-sm text-[#333]'>{country.name}</span>
                   </div>
                 ))}
