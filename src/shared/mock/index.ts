@@ -138,6 +138,31 @@ export interface ApiBranch {
   professionals_count: number;
 }
 
+export interface ApiOrgBranch {
+  id: number;
+  title: string;
+  address: string;
+  is_active: boolean;
+}
+
+export interface ApiOrganizationPreview {
+  id: number;
+  name: string;
+  paylink_enabled: boolean;
+  specialists_count: number;
+  professionals_count: number;
+}
+
+export interface ApiOrganizationDetail {
+  id: number;
+  name: string;
+  paylink_enabled: boolean;
+  specialists_count: number;
+  professionals_count: number;
+  services_count: number;
+  branches: ApiOrgBranch[];
+}
+
 // ─── Специализации ───────────────────────────────────────────────────────────
 
 export const MOCK_SPECIALISTS: ApiResponse<ApiSpecialist[]> = {

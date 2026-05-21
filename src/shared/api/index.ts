@@ -1,6 +1,7 @@
 export * from './specialists';
 export * from './doctors';
 export * from './professionals';
+export * from './organizations';
 export * from './features';
 export * from './meta';
 export * from './branches';
