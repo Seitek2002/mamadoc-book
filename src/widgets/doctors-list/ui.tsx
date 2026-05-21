@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getProfessionals } from '@/shared/api';
 import { Doctors } from '@/shared/ui';
 
@@ -12,6 +13,10 @@ export const DoctorsList = async ({
     specialist_id: specialistId,
     organization_id: organizationId,
   });
+
+  if (data.length === 1) {
+    redirect(`/doctor/${data[0].id}`);
+  }
 
   if (data.length === 0) {
     return (

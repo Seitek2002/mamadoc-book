@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getOrganizationById, getOrganizationBranches, getSpecialists } from '@/shared/api';
 import { OrganizationsList } from '@/widgets';
 import { PageTitle, Specialists, Branch } from '@/shared/ui';
@@ -38,6 +39,10 @@ export default async function Home({
       getOrganizationById(id),
       getOrganizationBranches(id),
     ]);
+
+    if (branchesRes.data.length === 1) {
+      redirect(`/?id=${id}&branch=${branchesRes.data[0].id}`);
+    }
 
     return (
       <div className='px-4'>
