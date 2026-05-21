@@ -20,7 +20,7 @@ const DoctorsListFallback = () => (
 export default async function SpecialistsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ org?: string; specialty?: string }>;
+  searchParams: Promise<{ org?: string; branch?: string; specialty?: string }>;
 }) {
   const { org, specialty } = await searchParams;
 

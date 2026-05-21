@@ -1,4 +1,5 @@
 export { Specialists } from './specialists';
+export { Branch } from './branch';
 export { Organization } from './organizations';
 export { PageTitle } from './page-title';
 export { Doctors } from './doctors';

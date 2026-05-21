@@ -1,15 +1,15 @@
-import { getOrganizationById, getSpecialists } from '@/shared/api';
+import { getOrganizationById, getOrganizationBranches, getSpecialists } from '@/shared/api';
 import { OrganizationsList } from '@/widgets';
-import { PageTitle, Specialists } from '@/shared/ui';
+import { PageTitle, Specialists, Branch } from '@/shared/ui';
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ id?: string }>;
+  searchParams: Promise<{ id?: string; branch?: string }>;
 }) {
-  const { id } = await searchParams;
+  const { id, branch } = await searchParams;
 
-  if (id) {
+  if (id && branch) {
     const [orgRes, specialistsRes] = await Promise.all([
       getOrganizationById(id),
       getSpecialists(),
@@ -25,8 +25,26 @@ export default async function Home({
               id={specialist.id}
               title={specialist.title}
               img={specialist.icon_url}
-              href={`/specialists?org=${id}&specialty=${specialist.id}`}
+              href={`/specialists?org=${id}&branch=${branch}&specialty=${specialist.id}`}
             />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (id) {
+    const [orgRes, branchesRes] = await Promise.all([
+      getOrganizationById(id),
+      getOrganizationBranches(id),
+    ]);
+
+    return (
+      <div className='px-4'>
+        <PageTitle title={`${orgRes.data.name} — выберите филиал`} />
+        <div className='flex flex-col gap-2.5 my-6 md:grid md:grid-cols-2 lg:grid-cols-3 rounded-[20px] md:bg-white p-5'>
+          {branchesRes.data.map((branchItem) => (
+            <Branch key={branchItem.id} branch={branchItem} orgId={id} />
           ))}
         </div>
       </div>
