@@ -16,9 +16,12 @@ import {
   verifyOtp,
   createBooking,
   setToken,
+  getProfessionalAvailableTimes,
+  getProfessionalAvailableServices,
   type BookingResult,
   type ApiError,
 } from '@/shared/api';
+import type { ApiService } from '@/shared/mock';
 
 interface BookingWrapperProps {
   id: string;
@@ -41,6 +44,11 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
 
+  const [filteredTimes, setFilteredTimes] = useState<string[] | null>(null);
+  const [filteredServices, setFilteredServices] = useState<ApiService[] | null>(null);
+  const [isTimesLoading, setIsTimesLoading] = useState(false);
+  const [isServicesLoading, setIsServicesLoading] = useState(false);
+
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -56,6 +64,64 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
 
   const scheduleRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLDivElement>(null);
+
+  const handleDateChange = async (date: string) => {
+    setSelectedDate(date);
+    setSelectedTime('');
+    setFilteredServices(null);
+    setErrors((prev) => ({ ...prev, date: false }));
+
+    if (selectedServices.length === 0) {
+      setFilteredTimes(null);
+      return;
+    }
+    setIsTimesLoading(true);
+    try {
+      const res = await getProfessionalAvailableTimes(id, { date, service_ids: selectedServices });
+      setFilteredTimes(res.data);
+    } catch {
+      setFilteredTimes(null);
+    } finally {
+      setIsTimesLoading(false);
+    }
+  };
+
+  const handleTimeChange = async (time: string) => {
+    setSelectedTime(time);
+    setErrors((prev) => ({ ...prev, time: false }));
+
+    if (!time || !selectedDate) return;
+    setIsServicesLoading(true);
+    try {
+      const res = await getProfessionalAvailableServices(id, { date: selectedDate, time });
+      setFilteredServices(res.data);
+    } catch {
+      setFilteredServices(null);
+    } finally {
+      setIsServicesLoading(false);
+    }
+  };
+
+  const handleServicesChange = async (serviceIds: number[]) => {
+    setSelectedServices(serviceIds);
+    setErrors((prev) => ({ ...prev, services: false }));
+
+    if (serviceIds.length === 0) {
+      setFilteredTimes(null);
+      return;
+    }
+    if (!selectedDate) return;
+    setIsTimesLoading(true);
+    setSelectedTime('');
+    try {
+      const res = await getProfessionalAvailableTimes(id, { date: selectedDate, service_ids: serviceIds });
+      setFilteredTimes(res.data);
+    } catch {
+      setFilteredTimes(null);
+    } finally {
+      setIsTimesLoading(false);
+    }
+  };
 
   const handleBooking = () => {
     const isDateInvalid = !selectedDate;
@@ -147,17 +213,13 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
           <DoctorsSchedule
             calendar={calendar}
             selectedDate={selectedDate}
-            onDateChange={(val) => {
-              setSelectedDate(val);
-              setErrors((prev) => ({ ...prev, date: false }));
-            }}
+            onDateChange={handleDateChange}
             selectedTime={selectedTime}
-            onTimeChange={(val) => {
-              setSelectedTime(val);
-              setErrors((prev) => ({ ...prev, time: false }));
-            }}
+            onTimeChange={handleTimeChange}
             isDateError={errors.date}
             isTimeError={errors.time}
+            overrideTimes={filteredTimes}
+            isTimesLoading={isTimesLoading}
           />
 
           <div className='hidden lg:flex justify-center w-full pt-4 pb-8'>
@@ -179,12 +241,10 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
         >
           {errors.services && <Tooltip text='Пожалуйста, выберите хотя бы одну услугу' />}
           <ServicesSelection
-            services={doctor.services}
+            services={filteredServices ?? doctor.services}
             selectedServices={selectedServices}
-            onChange={(val) => {
-              setSelectedServices(val);
-              setErrors((prev) => ({ ...prev, services: false }));
-            }}
+            onChange={handleServicesChange}
+            isLoading={isServicesLoading}
           />
         </div>
       </div>

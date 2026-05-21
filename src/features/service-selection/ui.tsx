@@ -7,12 +7,14 @@ interface ServicesSelectionProps {
   services: ApiService[];
   selectedServices: number[];
   onChange: (services: number[]) => void;
+  isLoading?: boolean;
 }
 
 export function ServicesSelection({
   services,
   selectedServices,
   onChange,
+  isLoading,
 }: ServicesSelectionProps) {
   const toggleService = (id: number) => {
     const newServices = selectedServices.includes(id)
@@ -31,7 +33,15 @@ export function ServicesSelection({
       </div>
 
       <div className='flex flex-col gap-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar'>
-        {services.map((service) => {
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className='grid grid-cols-[32px_1fr_70px] items-center gap-3 px-1 animate-pulse'>
+              <div className='size-6 rounded-sm bg-gray-200' />
+              <div className='h-4 bg-gray-200 rounded w-3/4' />
+              <div className='h-4 bg-gray-200 rounded w-12' />
+            </div>
+          ))
+        ) : services.map((service) => {
           const isSelected = selectedServices.includes(service.id);
           return (
             <button

@@ -1,4 +1,5 @@
 export { Specialists } from './specialists';
+export { Organization } from './organizations';
 export { PageTitle } from './page-title';
 export { Doctors } from './doctors';
 export { SearchBar } from './search-bar';

@@ -6,14 +6,16 @@ export const Specialists = ({
   img,
   title,
   id,
+  href,
 }: {
   img: string;
   title: string;
   id: number;
+  href?: string;
 }) => {
   return (
     <Link
-      href={'/specialists/' + id}
+      href={href ?? '/specialists/' + id}
       title={'Подробнее'}
       className='bg-white p-4 flex items-center gap-4 rounded-[10px] w-full overflow-hidden md:w-auto border border-[#E6EAF0] active:scale-95'
     >

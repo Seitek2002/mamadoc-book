@@ -12,6 +12,8 @@ interface DoctorsScheduleProps {
   onTimeChange: (time: string) => void;
   isDateError?: boolean;
   isTimeError?: boolean;
+  overrideTimes?: string[] | null;
+  isTimesLoading?: boolean;
 }
 
 export const DoctorsSchedule = ({
@@ -22,10 +24,12 @@ export const DoctorsSchedule = ({
   onTimeChange,
   isDateError,
   isTimeError,
+  overrideTimes,
+  isTimesLoading,
 }: DoctorsScheduleProps) => {
 
   const selectedDay = calendar.find((day) => day.date === selectedDate);
-  const currentSlots = selectedDay?.times || [];
+  const currentSlots = overrideTimes ?? selectedDay?.times ?? [];
 
   return (
     <div className='bg-white rounded-2xl py-5 h-full w-full flex flex-col gap-2'>
@@ -68,7 +72,11 @@ export const DoctorsSchedule = ({
         </span>
 
         <div className='flex flex-wrap gap-3'>
-          {currentSlots.length > 0 ? (
+          {isTimesLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className='w-18.75 h-6.5 rounded-full bg-gray-200 animate-pulse' />
+            ))
+          ) : currentSlots.length > 0 ? (
             currentSlots.map((time, idx) => (
               <div
                 key={`${selectedDate}-${time}-${idx}`}
