@@ -15,15 +15,20 @@ export interface VerifyOtpRequest {
 }
 
 export interface VerifyOtpResponse {
-  access_token: string;
+  registration_token: string;
   token_type: string;
   is_new_patient: boolean;
 }
 
 export interface CompleteProfileRequest {
-  first_name: string;
-  last_name: string;
+  phone: string;
+  full_name?: string;
+  inn?: number;
   birth_date?: string;
+  gender?: string;
+  nickname?: string;
+  telegram?: string;
+  instagram?: string;
 }
 
 export interface CompleteProfileResponse {

@@ -14,6 +14,7 @@ import type { ApiDoctorDetail, ApiCalendarDay, ApiPhoneCountry } from '@/shared/
 import {
   sendOtp,
   verifyOtp,
+  completeProfile,
   createBooking,
   setToken,
   getProfessionalAvailableTimes,
@@ -172,8 +173,9 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
     setOtpError('');
     setIsOtpLoading(true);
     try {
-      const auth = await verifyOtp({ phone: currentPhone, code: otpCode });
-      setToken(auth.access_token);
+      const { registration_token } = await verifyOtp({ phone: currentPhone, code: otpCode });
+      const { access_token } = await completeProfile({ phone: currentPhone }, registration_token);
+      setToken(access_token);
 
       const result = await createBooking(
         {
@@ -182,7 +184,7 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
           time: selectedTime,
           service_ids: selectedServices,
         },
-        auth.access_token,
+        access_token,
       );
 
       setBookingResult(result.data);
