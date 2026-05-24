@@ -42,7 +42,7 @@ export const DoctorsSchedule = ({
             isDateError ? 'border-red-500' : 'border-transparent',
           )}
         >
-          <div className='grid grid-cols-4 gap-2 max-h-41.25 overflow-auto px-4 py-2 md:grid-cols-6 custom-scrollbar'>
+          <div className='grid grid-cols-4 gap-2 max-h-70 overflow-auto px-4 py-2 md:grid-cols-6 custom-scrollbar'>
             {calendar.map((el) => (
               <DoctorsScheduleItem
                 key={el.date}
