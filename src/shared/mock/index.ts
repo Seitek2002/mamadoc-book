@@ -69,14 +69,14 @@ export interface ApiService {
   id: number;
   name: string;
   price: number;
-  duration_min: number;
-  description?: string;
+  duration_min?: number;
+  description?: string | null;
 }
 
 export interface ApiReview {
   id: number;
   patient_name: string;
-  patient_avatar?: string;
+  client_avatar: string;
   rating: number;
   text: string;
   date: string;
@@ -119,8 +119,8 @@ export interface ApiDoctorDetail {
 export interface ApiFeatureFlags {
   branches_enabled: boolean;
   paylink_enabled: boolean;
-  paylink_by_organization: boolean;
-  paylink_by_professional: boolean;
+  paylink_by_organization?: boolean;
+  paylink_by_professional?: boolean;
 }
 
 export interface ApiPhoneCountry {
@@ -134,33 +134,30 @@ export interface ApiBranch {
   id: number;
   organization_id: number;
   organization_name: string;
-  address: string;
-  professionals_count: number;
-}
-
-export interface ApiOrgBranch {
-  id: number;
   title: string;
   address: string;
-  is_active: boolean;
+  professionals_count: number;
 }
 
 export interface ApiOrganizationPreview {
   id: number;
   name: string;
+  logo_url?: string;
   paylink_enabled: boolean;
   specialists_count: number;
   professionals_count: number;
+  services_count?: number;
 }
 
 export interface ApiOrganizationDetail {
   id: number;
   name: string;
+  logo_url?: string;
   paylink_enabled: boolean;
   specialists_count: number;
   professionals_count: number;
-  services_count: number;
-  branches: ApiOrgBranch[];
+  services_count?: number;
+  branches: Record<string, unknown>[];
 }
 
 // ─── Специализации ───────────────────────────────────────────────────────────
@@ -287,6 +284,7 @@ export const MOCK_DOCTORS_DETAILS: Record<number, ApiResponse<ApiDoctorDetail>> 
           {
             id: 1,
             patient_name: 'Самат Досалиев',
+            client_avatar: '',
             rating: 5,
             text: 'Очень внимательный врач, всё подробно объяснил. Рекомендую!',
             date: '2026-05-16',
@@ -294,6 +292,7 @@ export const MOCK_DOCTORS_DETAILS: Record<number, ApiResponse<ApiDoctorDetail>> 
           {
             id: 2,
             patient_name: 'Айгуль М.',
+            client_avatar: '',
             rating: 5,
             text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
             date: '2026-05-16',

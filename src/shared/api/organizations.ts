@@ -1,6 +1,7 @@
 import { apiGet } from './client';
 import type {
   ApiResponse,
+  ApiPaginatedResponse,
   ApiOrganizationPreview,
   ApiOrganizationDetail,
   ApiBranch,
@@ -37,7 +38,7 @@ export function getOrganizationProfessionals(
   if (params?.page) qs.set('page', String(params.page));
   if (params?.availability_limit) qs.set('availability_limit', String(params.availability_limit));
   const query = qs.toString() ? `?${qs}` : '';
-  return apiGet<ApiResponse<ApiDoctorPreview[]>>(
+  return apiGet<ApiPaginatedResponse<ApiDoctorPreview[]>>(
     `/organizations/${id}/professionals/${query}`,
   );
 }

@@ -1,18 +1,52 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import SearchIcon from '@/shared/assets/icons/search/search-icon.svg';
-import { MOCK_SPECIALISTS } from '@/shared/mock';
+import type { ApiSpecialist } from '@/shared/mock';
 import { Specialists } from '../specialists';
 
-export const SearchBar = () => {
-  const [query, setQuery] = useState('');
+interface SearchBarProps {
+  specialists: ApiSpecialist[];
+  org?: string;
+  branch?: string;
+  initialQuery?: string;
+}
+
+export const SearchBar = ({ specialists, org, branch, initialQuery = '' }: SearchBarProps) => {
+  const [query, setQuery] = useState(initialQuery);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const filtered = query.trim()
-    ? MOCK_SPECIALISTS.data.filter((s) =>
-        s.title.toLowerCase().includes(query.toLowerCase()),
-      )
-    : MOCK_SPECIALISTS.data;
+    ? specialists.filter((s) => s.title.toLowerCase().includes(query.toLowerCase()))
+    : specialists;
+
+  const buildSpecialtyHref = (specialistId: number) => {
+    const params = new URLSearchParams();
+    if (org) params.set('org', org);
+    if (branch) params.set('branch', branch);
+    params.set('specialty', String(specialistId));
+    return `/specialists?${params}`;
+  };
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (query.trim()) {
+        params.set('q', query.trim());
+      } else {
+        params.delete('q');
+      }
+      router.replace(`${pathname}?${params}`);
+    }, 400);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query]);
 
   return (
     <div className='w-full flex-1 lg:bg-white lg:p-4 rounded-[10px]'>
@@ -32,7 +66,13 @@ export const SearchBar = () => {
       </label>
       <div className='hidden lg:flex flex-col gap-2.5 my-3'>
         {filtered.map((el) => (
-          <Specialists key={el.id} id={el.id} title={el.title} img={el.icon_url} />
+          <Specialists
+            key={el.id}
+            id={el.id}
+            title={el.title}
+            img={el.icon_url}
+            href={buildSpecialtyHref(el.id)}
+          />
         ))}
       </div>
     </div>

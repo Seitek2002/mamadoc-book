@@ -125,7 +125,7 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
     setIsTimesLoading(true);
     try {
       const res = await getProfessionalAvailableTimes(id, { date, service_ids: selectedServices });
-      setFilteredTimes(res.data);
+      setFilteredTimes(res.times);
     } catch {
       setFilteredTimes(null);
     } finally {
@@ -163,7 +163,7 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
     setSelectedTime('');
     try {
       const res = await getProfessionalAvailableTimes(id, { date: selectedDate, service_ids: serviceIds });
-      setFilteredTimes(res.data);
+      setFilteredTimes(res.times);
     } catch {
       setFilteredTimes(null);
     } finally {
@@ -215,13 +215,19 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
     setOtpError('');
     setIsOtpLoading(true);
     try {
-      const { registration_token } = await verifyOtp({ phone: currentPhone, code: otpCode });
-      const { access_token } = await completeProfile({ phone: currentPhone }, registration_token);
+      const verifyResult = await verifyOtp({ phone: currentPhone, code: otpCode });
+      let access_token: string;
+      if (!verifyResult.needs_profile) {
+        access_token = verifyResult.access_token!;
+      } else {
+        const profileRes = await completeProfile({ phone: currentPhone }, verifyResult.code!);
+        access_token = profileRes.access_token;
+      }
       setToken(access_token);
 
       const result = await createBooking(
         {
-          doctor_id: Number(id),
+          professional_id: Number(id),
           date: selectedDate,
           time: selectedTime,
           service_ids: selectedServices,

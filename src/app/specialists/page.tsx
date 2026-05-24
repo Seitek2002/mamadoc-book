@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { DoctorsList } from '@/widgets';
 import { PageTitle, SearchBar } from '@/shared/ui';
+import { getSpecialists, getBranchSpecialists } from '@/shared/api';
 
 const DoctorsListFallback = () => (
   <div className='flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4 lg:mt-0 animate-pulse'>
@@ -20,9 +21,13 @@ const DoctorsListFallback = () => (
 export default async function SpecialistsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ org?: string; branch?: string; specialty?: string }>;
+  searchParams: Promise<{ org?: string; branch?: string; specialty?: string; q?: string }>;
 }) {
-  const { org, specialty } = await searchParams;
+  const { org, branch, specialty, q } = await searchParams;
+
+  const specialistsRes = branch
+    ? await getBranchSpecialists(branch)
+    : await getSpecialists();
 
   return (
     <div className='max-w-7xl mx-auto px-4'>
@@ -30,12 +35,19 @@ export default async function SpecialistsPage({
 
       <div className='flex flex-col items-start mt-3 lg:flex-row lg:gap-7.5'>
         <div className='w-full lg:w-[33%]'>
-          <SearchBar />
+          <SearchBar
+            specialists={specialistsRes.data}
+            org={org}
+            branch={branch}
+            initialQuery={q}
+          />
         </div>
         <Suspense fallback={<DoctorsListFallback />}>
           <DoctorsList
             organizationId={org ? Number(org) : undefined}
+            branchId={branch ? Number(branch) : undefined}
             specialistId={specialty ? Number(specialty) : undefined}
+            search={q}
           />
         </Suspense>
       </div>

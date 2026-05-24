@@ -34,6 +34,12 @@ export function getProfessionals(params?: {
   return apiGet<ApiPaginatedResponse<ApiDoctorPreview[]>>(`/professionals/${query}`);
 }
 
+export interface AvailableTimesResponse {
+  date: string;
+  duration_min: number;
+  times: string[];
+}
+
 export function getProfessionalAvailableTimes(
   id: number | string,
   params: { date: string; service_ids: number[] },
@@ -41,7 +47,7 @@ export function getProfessionalAvailableTimes(
   const qs = new URLSearchParams();
   qs.set('date', params.date);
   qs.set('service_ids', params.service_ids.join(','));
-  return apiGet<ApiResponse<string[]>>(`/professionals/${id}/available-times/?${qs}`);
+  return apiGet<AvailableTimesResponse>(`/professionals/${id}/available-times/?${qs}`);
 }
 
 export function getProfessionalAvailableServices(

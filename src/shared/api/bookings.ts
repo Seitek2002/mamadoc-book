@@ -1,7 +1,7 @@
 import { apiPost, apiGet, apiDelete } from './client';
 
 export interface CreateBookingRequest {
-  doctor_id: number;
+  professional_id: number;
   date: string;
   time: string;
   service_ids: number[];
@@ -12,22 +12,24 @@ export interface BookingService {
   price: number;
 }
 
-export interface BookingDoctor {
+export interface BookingProfessional {
   full_name: string;
   photo_url: string;
   specialty: string;
   clinic_address: string;
 }
 
+export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+
 export interface BookingResult {
   id: number;
   confirmation_code: string;
-  doctor: BookingDoctor;
+  professional: BookingProfessional;
   date: string;
   time: string;
   services: BookingService[];
   total_price: number;
-  status: string;
+  status: BookingStatus;
 }
 
 export interface BookingCreateResponse {
@@ -37,10 +39,10 @@ export interface BookingCreateResponse {
 export interface MyBooking {
   id: number;
   confirmation_code: string;
-  doctor_name: string;
+  professional_name: string;
   date: string;
   time: string;
-  status: string;
+  status: BookingStatus;
   total_price: number;
 }
 

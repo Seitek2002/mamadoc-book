@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { DoctorsList } from '@/widgets';
 import { PageTitle, SearchBar } from '@/shared/ui';
+import { getSpecialists } from '@/shared/api';
 
 const DoctorsListFallback = () => (
   <div className='flex flex-col gap-4 my-4 lg:mt-0 md:grid md:grid-cols-2 lg:grid-cols-4 max-w-245.25 ml-auto'>
@@ -17,8 +18,18 @@ const DoctorsListFallback = () => (
   </div>
 );
 
-const page = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params;
+const page = async ({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ q?: string }>;
+}) => {
+  const [{ id }, { q }, specialistsRes] = await Promise.all([
+    params,
+    searchParams,
+    getSpecialists(),
+  ]);
 
   return (
     <div className='max-w-7xl mx-auto px-4'>
@@ -26,10 +37,10 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
       <div className='flex flex-col items-start mt-3 lg:flex-row lg:gap-7.5'>
         <div className='w-full lg:w-[33%]'>
-          <SearchBar />
+          <SearchBar specialists={specialistsRes.data} initialQuery={q} />
         </div>
         <Suspense fallback={<DoctorsListFallback />}>
-          <DoctorsList specialistId={Number(id)} />
+          <DoctorsList specialistId={Number(id)} search={q} />
         </Suspense>
       </div>
     </div>

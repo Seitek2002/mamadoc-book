@@ -16,18 +16,18 @@ const AvatarCard = ({ booking }: { booking: BookingResult }) => {
     <>
       <div className='w-full h-40.25 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-center'>
         <Image
-          src={booking.doctor.photo_url}
-          alt={booking.doctor.full_name}
+          src={booking.professional.photo_url}
+          alt={booking.professional.full_name}
           width={400}
           height={400}
           className='shrink-0 object-cover w-full h-full rounded-[10px] overflow-hidden'
         />
         <span className='absolute right-0 bottom-0 px-2 py-1.5 rounded-tl-[10px] inline text-xs font-semibold text-gray bg-white'>
-          {booking.doctor.specialty}
+          {booking.professional.specialty}
         </span>
       </div>
       <h2 className='font-medium text-sm text-dark'>
-        {booking.doctor.full_name}
+        {booking.professional.full_name}
       </h2>
     </>
   );
@@ -151,7 +151,7 @@ export function SuccessModal({ isOpen, onClose, booking }: SuccessModalProps) {
                   <div className='text-sm font-medium mb-1 lg:text-sm'>
                     {booking.services.map((s) => s.name).join(', ')}
                   </div>
-                  <div className='text-sm font-medium lg:text-sm'>{booking.doctor.specialty}</div>
+                  <div className='text-sm font-medium lg:text-sm'>{booking.professional.specialty}</div>
                 </div>
               </div>
             </div>
@@ -162,7 +162,7 @@ export function SuccessModal({ isOpen, onClose, booking }: SuccessModalProps) {
               </svg>
               <div>
                 <div className='leading-4 text-xs mb-2 lg:text-sm'>Адрес</div>
-                <div className='leading-4 text-xs font-medium lg:text-sm'>{booking.doctor.clinic_address}</div>
+                <div className='leading-4 text-xs font-medium lg:text-sm'>{booking.professional.clinic_address}</div>
               </div>
             </div>
           </div>

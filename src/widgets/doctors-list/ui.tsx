@@ -1,18 +1,25 @@
 import { redirect } from 'next/navigation';
-import { getProfessionals } from '@/shared/api';
+import { getProfessionals, getBranchProfessionals } from '@/shared/api';
 import { Doctors } from '@/shared/ui';
 
 export const DoctorsList = async ({
   specialistId,
   organizationId,
+  branchId,
+  search,
 }: {
   specialistId?: number;
   organizationId?: number;
+  branchId?: number;
+  search?: string;
 }) => {
-  const { data } = await getProfessionals({
-    specialist_id: specialistId,
-    organization_id: organizationId,
-  });
+  const { data } = branchId
+    ? await getBranchProfessionals(branchId)
+    : await getProfessionals({
+        specialist_id: specialistId,
+        organization_id: organizationId,
+        search,
+      });
 
   if (data.length === 1) {
     redirect(`/doctor/${data[0].id}`);
