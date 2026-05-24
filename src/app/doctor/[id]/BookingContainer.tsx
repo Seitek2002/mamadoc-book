@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, Fragment } from 'react';
 import clsx from 'clsx';
 import { DoctorsDetailsCard } from '@/widgets';
 import {
@@ -38,6 +38,58 @@ const Tooltip = ({ text }: { text: string }) => (
   </div>
 );
 
+const STEPS = ['Дата', 'Время', 'Услуги'];
+
+const StepIndicator = ({ current }: { current: number }) => (
+  <div className='flex items-center mt-4 px-1'>
+    {STEPS.map((label, idx) => {
+      const num = idx + 1;
+      const done = num < current;
+      const active = num === current;
+      return (
+        <Fragment key={label}>
+          <div className='flex flex-col items-center gap-1'>
+            <div
+              className={clsx(
+                'size-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all',
+                active
+                  ? 'bg-[#007BFF] border-[#007BFF] text-white'
+                  : done
+                  ? 'bg-[#5CB85C] border-[#5CB85C] text-white'
+                  : 'bg-white border-[#D0D5DD] text-[#98A2B3]',
+              )}
+            >
+              {done ? (
+                <svg width='10' height='8' viewBox='0 0 10 8' fill='none'>
+                  <path d='M1 4L3.5 6.5L9 1' stroke='white' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                </svg>
+              ) : (
+                num
+              )}
+            </div>
+            <span
+              className={clsx(
+                'text-[10px] font-medium',
+                active ? 'text-[#007BFF]' : done ? 'text-[#5CB85C]' : 'text-[#98A2B3]',
+              )}
+            >
+              {label}
+            </span>
+          </div>
+          {idx < STEPS.length - 1 && (
+            <div
+              className={clsx(
+                'flex-1 h-0.5 mx-2 mb-4',
+                done ? 'bg-[#5CB85C]' : 'bg-[#D0D5DD]',
+              )}
+            />
+          )}
+        </Fragment>
+      );
+    })}
+  </div>
+);
+
 export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapperProps) {
   const firstAvailable = calendar.find((d) => d.is_available);
 
@@ -62,15 +114,14 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
   const [isOtpLoading, setIsOtpLoading] = useState(false);
 
   const [errors, setErrors] = useState({ date: false, time: false, services: false });
-
-  const scheduleRef = useRef<HTMLDivElement>(null);
-  const servicesRef = useRef<HTMLDivElement>(null);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   const handleDateChange = async (date: string) => {
     setSelectedDate(date);
     setSelectedTime('');
     setFilteredServices(null);
     setErrors((prev) => ({ ...prev, date: false }));
+    setCurrentStep(2);
 
     if (selectedServices.length === 0) {
       setFilteredTimes(null);
@@ -90,6 +141,7 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
   const handleTimeChange = async (time: string) => {
     setSelectedTime(time);
     setErrors((prev) => ({ ...prev, time: false }));
+    if (time) setCurrentStep(3);
 
     if (!time || !selectedDate) return;
     setIsServicesLoading(true);
@@ -131,14 +183,9 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
 
     setErrors({ date: isDateInvalid, time: isTimeInvalid, services: isServicesInvalid });
 
-    if (isDateInvalid || isTimeInvalid) {
-      scheduleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    if (isServicesInvalid) {
-      servicesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
+    if (isDateInvalid) { setCurrentStep(1); return; }
+    if (isTimeInvalid) { setCurrentStep(2); return; }
+    if (isServicesInvalid) { setCurrentStep(3); return; }
 
     setIsPhoneModalOpen(true);
   };
@@ -198,33 +245,53 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
     }
   };
 
+  const scheduleProps = {
+    calendar,
+    selectedDate,
+    onDateChange: handleDateChange,
+    selectedTime,
+    onTimeChange: handleTimeChange,
+    isDateError: errors.date,
+    isTimeError: errors.time,
+    overrideTimes: filteredTimes,
+    isTimesLoading,
+  };
+
+  const servicesProps = {
+    services: filteredServices ?? doctor.services,
+    selectedServices,
+    onChange: handleServicesChange,
+    isLoading: isServicesLoading,
+  };
+
   return (
     <>
       <div className='grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-4 items-start pb-24 lg:pb-0'>
+
+        {/* Left column: doctor card + step indicator */}
         <div className='lg:col-start-1 lg:row-start-1 mx-4'>
           <DoctorsDetailsCard doctor={doctor} />
+          <StepIndicator current={currentStep} />
         </div>
 
-        <div
-          ref={scheduleRef}
-          className='lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-2xl transition-all duration-300 relative flex flex-col'
-        >
+        {/* Right column — desktop only: all steps at once */}
+        <div className='hidden lg:flex lg:col-start-2 lg:row-start-1 lg:row-span-2 flex-col gap-4 rounded-2xl relative'>
           {errors.date && <Tooltip text='Пожалуйста, выберите дату' />}
           {errors.time && !errors.date && <Tooltip text='Пожалуйста, выберите время' />}
 
-          <DoctorsSchedule
-            calendar={calendar}
-            selectedDate={selectedDate}
-            onDateChange={handleDateChange}
-            selectedTime={selectedTime}
-            onTimeChange={handleTimeChange}
-            isDateError={errors.date}
-            isTimeError={errors.time}
-            overrideTimes={filteredTimes}
-            isTimesLoading={isTimesLoading}
-          />
+          <DoctorsSchedule {...scheduleProps} showSection='all' />
 
-          <div className='hidden lg:flex justify-center w-full pt-4 pb-8'>
+          <div
+            className={clsx(
+              'rounded-2xl transition-all duration-300 relative border-2',
+              errors.services ? 'border-red-500' : 'border-transparent',
+            )}
+          >
+            {errors.services && <Tooltip text='Пожалуйста, выберите хотя бы одну услугу' />}
+            <ServicesSelection {...servicesProps} />
+          </div>
+
+          <div className='flex justify-center pb-8'>
             <button
               onClick={handleBooking}
               className='bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-77 h-10.25 text-base rounded-full shadow-md active:scale-95 transition-all'
@@ -234,20 +301,42 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
           </div>
         </div>
 
-        <div
-          ref={servicesRef}
-          className={clsx(
-            'lg:col-start-1 lg:row-start-2 rounded-2xl transition-all duration-300 relative border-2',
-            errors.services ? 'border-red-500' : 'border-transparent',
+        {/* Mobile: step-by-step */}
+        <div className='lg:hidden lg:col-start-1 lg:row-start-2 mx-4 flex flex-col gap-3'>
+          {currentStep > 1 && (
+            <button
+              onClick={() => setCurrentStep((p) => (p - 1) as 1 | 2 | 3)}
+              className='flex items-center gap-1.5 text-sm text-[#6B6B6B] font-medium self-start'
+            >
+              <svg width='16' height='16' viewBox='0 0 16 16' fill='none'>
+                <path d='M10 12L6 8L10 4' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
+              </svg>
+              Назад
+            </button>
           )}
-        >
-          {errors.services && <Tooltip text='Пожалуйста, выберите хотя бы одну услугу' />}
-          <ServicesSelection
-            services={filteredServices ?? doctor.services}
-            selectedServices={selectedServices}
-            onChange={handleServicesChange}
-            isLoading={isServicesLoading}
-          />
+
+          {(currentStep === 1 || currentStep === 2) && (
+            <div className='relative'>
+              {errors.date && currentStep === 1 && <Tooltip text='Пожалуйста, выберите дату' />}
+              {errors.time && currentStep === 2 && <Tooltip text='Пожалуйста, выберите время' />}
+              <DoctorsSchedule
+                {...scheduleProps}
+                showSection={currentStep === 1 ? 'date' : 'time'}
+              />
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div
+              className={clsx(
+                'rounded-2xl transition-all duration-300 relative border-2',
+                errors.services ? 'border-red-500' : 'border-transparent',
+              )}
+            >
+              {errors.services && <Tooltip text='Пожалуйста, выберите хотя бы одну услугу' />}
+              <ServicesSelection {...servicesProps} />
+            </div>
+          )}
         </div>
       </div>
 
