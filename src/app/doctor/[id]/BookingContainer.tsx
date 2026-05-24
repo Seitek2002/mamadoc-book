@@ -314,7 +314,24 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
           )}
 
           {/* Desktop book button */}
-          <div className='hidden lg:flex justify-center pt-2 pb-4'>
+          <div className='hidden lg:flex flex-col items-center gap-3 pt-2 pb-4'>
+            {(selectedDate || selectedTime) && (
+              <div className='flex items-center gap-2 text-sm font-semibold text-[#333] bg-[#FAF9F9] border border-white rounded-full px-5 py-2 shadow-sm'>
+                {selectedDate && <span>{selectedDate}</span>}
+                {selectedDate && selectedTime && <span className='text-[#B3B3B3]'>·</span>}
+                {selectedTime && <span>{selectedTime}</span>}
+                {selectedServices.length > 0 && (
+                  <>
+                    <span className='text-[#B3B3B3]'>·</span>
+                    <span>
+                      {selectedServices.length === 1
+                        ? (filteredServices ?? doctor.services).find((s) => s.id === selectedServices[0])?.name ?? 'Услуга'
+                        : `${selectedServices.length} услуги`}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
             <button
               onClick={handleBooking}
               className='bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-77 h-10.25 text-base rounded-full shadow-md active:scale-95 transition-all'
