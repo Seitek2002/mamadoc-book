@@ -41,7 +41,7 @@ const Tooltip = ({ text }: { text: string }) => (
 const STEPS = ['Дата', 'Время', 'Услуги'];
 
 const StepIndicator = ({ current }: { current: number }) => (
-  <div className='flex items-center mt-4 px-1'>
+  <div className='flex items-center px-1'>
     {STEPS.map((label, idx) => {
       const num = idx + 1;
       const done = num < current;
@@ -77,12 +77,7 @@ const StepIndicator = ({ current }: { current: number }) => (
             </span>
           </div>
           {idx < STEPS.length - 1 && (
-            <div
-              className={clsx(
-                'flex-1 h-0.5 mx-2 mb-4',
-                done ? 'bg-[#5CB85C]' : 'bg-[#D0D5DD]',
-              )}
-            />
+            <div className={clsx('flex-1 h-0.5 mx-2 mb-4', done ? 'bg-[#5CB85C]' : 'bg-[#D0D5DD]')} />
           )}
         </Fragment>
       );
@@ -245,64 +240,24 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
     }
   };
 
-  const scheduleProps = {
-    calendar,
-    selectedDate,
-    onDateChange: handleDateChange,
-    selectedTime,
-    onTimeChange: handleTimeChange,
-    isDateError: errors.date,
-    isTimeError: errors.time,
-    overrideTimes: filteredTimes,
-    isTimesLoading,
-  };
-
-  const servicesProps = {
-    services: filteredServices ?? doctor.services,
-    selectedServices,
-    onChange: handleServicesChange,
-    isLoading: isServicesLoading,
-  };
-
   return (
     <>
       <div className='grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-4 items-start pb-24 lg:pb-0'>
 
-        {/* Left column: doctor card + step indicator */}
+        {/* Left column: doctor card */}
         <div className='lg:col-start-1 lg:row-start-1 mx-4'>
           <DoctorsDetailsCard doctor={doctor} />
-          <StepIndicator current={currentStep} />
         </div>
 
-        {/* Right column — desktop only: all steps at once */}
-        <div className='hidden lg:flex lg:col-start-2 lg:row-start-1 lg:row-span-2 flex-col gap-4 rounded-2xl relative'>
-          {errors.date && <Tooltip text='Пожалуйста, выберите дату' />}
-          {errors.time && !errors.date && <Tooltip text='Пожалуйста, выберите время' />}
+        {/* Right column: step indicator at top + step content (both mobile & desktop) */}
+        <div className='lg:col-start-2 lg:row-start-1 mx-4 lg:mx-0 flex flex-col gap-3'>
 
-          <DoctorsSchedule {...scheduleProps} showSection='all' />
-
-          <div
-            className={clsx(
-              'rounded-2xl transition-all duration-300 relative border-2',
-              errors.services ? 'border-red-500' : 'border-transparent',
-            )}
-          >
-            {errors.services && <Tooltip text='Пожалуйста, выберите хотя бы одну услугу' />}
-            <ServicesSelection {...servicesProps} />
+          {/* Step indicator */}
+          <div className='bg-white rounded-2xl px-4 py-4 shadow-sm'>
+            <StepIndicator current={currentStep} />
           </div>
 
-          <div className='flex justify-center pb-8'>
-            <button
-              onClick={handleBooking}
-              className='bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-77 h-10.25 text-base rounded-full shadow-md active:scale-95 transition-all'
-            >
-              Записаться
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile: step-by-step */}
-        <div className='lg:hidden lg:col-start-1 lg:row-start-2 mx-4 flex flex-col gap-3'>
+          {/* Back button */}
           {currentStep > 1 && (
             <button
               onClick={() => setCurrentStep((p) => (p - 1) as 1 | 2 | 3)}
@@ -315,12 +270,21 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
             </button>
           )}
 
+          {/* Step content */}
           {(currentStep === 1 || currentStep === 2) && (
             <div className='relative'>
               {errors.date && currentStep === 1 && <Tooltip text='Пожалуйста, выберите дату' />}
               {errors.time && currentStep === 2 && <Tooltip text='Пожалуйста, выберите время' />}
               <DoctorsSchedule
-                {...scheduleProps}
+                calendar={calendar}
+                selectedDate={selectedDate}
+                onDateChange={handleDateChange}
+                selectedTime={selectedTime}
+                onTimeChange={handleTimeChange}
+                isDateError={errors.date}
+                isTimeError={errors.time}
+                overrideTimes={filteredTimes}
+                isTimesLoading={isTimesLoading}
                 showSection={currentStep === 1 ? 'date' : 'time'}
               />
             </div>
@@ -334,12 +298,28 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
               )}
             >
               {errors.services && <Tooltip text='Пожалуйста, выберите хотя бы одну услугу' />}
-              <ServicesSelection {...servicesProps} />
+              <ServicesSelection
+                services={filteredServices ?? doctor.services}
+                selectedServices={selectedServices}
+                onChange={handleServicesChange}
+                isLoading={isServicesLoading}
+              />
             </div>
           )}
+
+          {/* Desktop book button */}
+          <div className='hidden lg:flex justify-center pt-2 pb-4'>
+            <button
+              onClick={handleBooking}
+              className='bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-77 h-10.25 text-base rounded-full shadow-md active:scale-95 transition-all'
+            >
+              Записаться
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Fixed mobile bottom */}
       <div className='fixed lg:hidden left-1/2 font-semibold -translate-x-1/2 rounded-full bottom-15 shadow-2xl flex justify-center items-center text-sm h-7.5 w-36.75 bg-[#FAF9F9] z-10 border border-white'>
         {selectedDate && selectedTime ? `${selectedDate}, ${selectedTime}` : 'Выберите время'}
       </div>
