@@ -847,7 +847,7 @@ export const DOCTORS_DETAILS_LIST: DoctorDetail[] = [
     ],
     selectedDate: '2026-03-15',
     availableTimes: ['12:00'],
-    services: [{ id: 1, name: 'Прием врача', price: 2000, isSelected: true }],
+    services: [{ id: 1, name: 'Прием специалиста', price: 2000, isSelected: true }],
     reviews: [],
     totalReviewsCount: 89,
   },

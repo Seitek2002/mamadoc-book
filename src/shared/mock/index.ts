@@ -286,7 +286,7 @@ export const MOCK_DOCTORS_DETAILS: Record<number, ApiResponse<ApiDoctorDetail>> 
             patient_name: 'Самат Досалиев',
             client_avatar: '',
             rating: 5,
-            text: 'Очень внимательный врач, всё подробно объяснил. Рекомендую!',
+            text: 'Очень внимательный специалист, всё подробно объяснил. Рекомендую!',
             date: '2026-05-16',
           },
           {
@@ -382,7 +382,7 @@ export const MOCK_DOCTORS_DETAILS: Record<number, ApiResponse<ApiDoctorDetail>> 
       gender: 'male',
       slot_duration_min: 30,
       services: [
-        { id: 1, name: 'Прием врача', price: 2000, duration_min: 30 },
+        { id: 1, name: 'Прием специалиста', price: 2000, duration_min: 30 },
       ],
       reviews: {
         total_count: 89,
