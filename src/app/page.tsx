@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getOrganizationById, getOrganizationBranches, getSpecialists } from '@/shared/api';
+import { getOrganizationById, getOrganizationBranches, getBranchSpecialists } from '@/shared/api';
 import { OrganizationsList } from '@/widgets';
 import { PageTitle, Specialists, Branch } from '@/shared/ui';
 
@@ -13,8 +13,12 @@ export default async function Home({
   if (id && branch) {
     const [orgRes, specialistsRes] = await Promise.all([
       getOrganizationById(id),
-      getSpecialists(),
+      getBranchSpecialists(branch),
     ]);
+
+    if (specialistsRes.data.length === 1) {
+      redirect(`/specialists?org=${id}&branch=${branch}&specialty=${specialistsRes.data[0].id}`);
+    }
 
     return (
       <div className='px-4'>
