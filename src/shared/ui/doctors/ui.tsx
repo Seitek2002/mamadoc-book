@@ -6,7 +6,7 @@ import { AvatarBlock } from './avatar-block';
 export const Doctors = ({ el }: { el: ApiDoctorPreview }) => {
   return (
     <Link
-      href={'/doctor/' + el.id}
+      href={'/specialist/' + el.id}
       className='flex lg:flex-col lg:max-w-57.5 rounded-[10px] overflow-hidden bg-white border border-[#E7E7EE] active:scale-95'
     >
       <AvatarBlock photo_url={el.photo_url} full_name={el.full_name} specialty={el.specialty} />

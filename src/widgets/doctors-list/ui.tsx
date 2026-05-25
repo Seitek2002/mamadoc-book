@@ -22,7 +22,7 @@ export const DoctorsList = async ({
       });
 
   if (data.length === 1) {
-    redirect(`/doctor/${data[0].id}`);
+    redirect(`/specialist/${data[0].id}`);
   }
 
   if (data.length === 0) {
