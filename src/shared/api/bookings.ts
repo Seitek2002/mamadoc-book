@@ -42,8 +42,8 @@ export interface MyBooking {
   professional_name: string;
   date: string;
   time: string;
-  status: BookingStatus;
-  total_price: number;
+  status?: BookingStatus;
+  total_price?: number | null;
 }
 
 export interface MyBookingsResponse {
