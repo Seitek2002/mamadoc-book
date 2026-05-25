@@ -14,7 +14,7 @@ export const DoctorsList = async ({
   search?: string;
 }) => {
   const { data } = branchId
-    ? await getBranchProfessionals(branchId)
+    ? await getBranchProfessionals(branchId, { specialist_id: specialistId, search })
     : await getProfessionals({
         specialist_id: specialistId,
         organization_id: organizationId,
