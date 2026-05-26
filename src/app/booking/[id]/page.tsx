@@ -25,6 +25,8 @@ export default async function BookingViewPage({
     services?: string;
     price?: string;
     photo?: string;
+    org?: string;
+    branch?: string;
   }>;
 }) {
   const { id } = await params;

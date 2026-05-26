@@ -79,6 +79,8 @@ export function SuccessModal({ isOpen, onClose, booking }: SuccessModalProps) {
       price: String(booking.total_price),
       photo: booking.professional.photo_url,
     });
+    if (booking.organization_id) params.set('org', String(booking.organization_id));
+    if (booking.branch_id) params.set('branch', String(booking.branch_id));
     setBookingUrl(`${window.location.origin}/booking/${booking.id}?${params}`);
   }, [booking]);
 

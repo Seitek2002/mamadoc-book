@@ -24,6 +24,8 @@ export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' 
 export interface BookingResult {
   id: number;
   confirmation_code: string;
+  organization_id: number | null;
+  branch_id: number | null;
   professional: BookingProfessional;
   date: string;
   time: string;
