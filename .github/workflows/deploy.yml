@@ -2,7 +2,7 @@ name: Deploy Frontend
 
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   deploy:
@@ -20,8 +20,8 @@ jobs:
 
             cd /home/zhibek/book_front || exit 1
 
-            git fetch origin master
-            git reset --hard origin/master
+            git fetch origin main
+            git reset --hard origin/main
 
             # --- Пересобираем и перезапускаем фронтенд ---
             cd /home/zhibek/book_back || exit 1
