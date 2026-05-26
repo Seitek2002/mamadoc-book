@@ -23,7 +23,6 @@ jobs:
             git fetch origin master
             git reset --hard origin/master
 
-            # --- Пересобираем и перезапускаем фронтенд ---
             cd /home/zhibek/book_back || exit 1
             docker network create book_network 2>/dev/null || true
             docker compose -f docker-compose.prod.yml up -d --build frontend
