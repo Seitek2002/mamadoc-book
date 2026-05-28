@@ -31,7 +31,7 @@ export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
     <div
       onClick={data.is_available ? onClick : undefined}
       className={clsx(
-        'flex flex-col border relative rounded-[10px] w-auto h-15 lg:w-auto lg:h-20 font-semibold p-2 transition-all cursor-pointer',
+        'flex flex-col border relative rounded-[10px] w-auto h-15 lg:w-auto lg:h-20 font-semibold p-1 md:p-2 transition-all cursor-pointer',
         !data.is_available && 'opacity-30 grayscale-[0.5] cursor-not-allowed',
         isActive ? 'bg-mint-100 border-success' : 'border-sky bg-[#ECF1FB]',
       )}
@@ -51,7 +51,7 @@ export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
 
       <span
         className={clsx(
-          'text-xs xl:text-sm flex justify-between items-center capitalize transition-all text-nowrap',
+          'text-[9px] xl:text-sm flex justify-between items-center capitalize transition-all text-nowrap',
           isActive ? 'text-success' : 'text-primary',
         )}
       >
@@ -72,10 +72,16 @@ export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
 
       <span
         className={clsx(
-          'text-[10px] xl:text-xs text-center text-nowrap font-semibold text-white py-0.5 rounded-full w-full mt-auto transition-all',
+          'text-[8px] xl:text-xs text-center text-nowrap font-semibold text-white py-0.5 rounded-full w-full mt-auto transition-all',
           isActive ? 'bg-success' : 'bg-primary',
         )}
       >
+        {/* <span className="md:hidden">
+          {data.slots_count}
+        </span> */}
+        {/* <span className="hidden md:inline">
+          {getSlotsLabel(data.slots_count)}
+        </span> */}
         {getSlotsLabel(data.slots_count)}
       </span>
     </div>
