@@ -160,10 +160,13 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
     }
     if (!selectedDate) return;
     setIsTimesLoading(true);
-    setSelectedTime('');
     try {
       const res = await getProfessionalAvailableTimes(id, { date: selectedDate, service_ids: serviceIds });
       setFilteredTimes(res.times);
+      if (selectedTime && !res.times.includes(selectedTime)) {
+        setSelectedTime('');
+        setCurrentStep(2);
+      }
     } catch {
       setFilteredTimes(null);
     } finally {
