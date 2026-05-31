@@ -6,7 +6,7 @@
  *   var `API_URL` (recommended for Docker), otherwise fall back to
  *   `NEXT_PUBLIC_API_URL` or localhost.
  */
-const PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? '/api/v1';
+const PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? '/api/v1';
 const SERVER_BASE_URL =
   process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
