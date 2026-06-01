@@ -214,15 +214,15 @@ export function SuccessModal({ isOpen, onClose, booking }: SuccessModalProps) {
                   <line x1='3' y1='6' x2='21' y2='6'></line>
                   <path d='M16 10a4 4 0 0 1-8 0'></path>
                 </svg>
-                <span className='text-xs lg:text-sm text-gray shrink-0 whitespace-nowrap'>Услуга</span>
-                <span className='text-sm font-medium lg:text-sm wrap-break-word'>
+                <span className='text-xs lg:text-sm text-gray shrink-0 w-24 lg:w-28'>Услуга</span>
+                <span className='text-sm font-medium lg:text-sm flex-1 min-w-0 wrap-break-word'>
                   {booking.services.map((s) => s.name).join(', ')}
                 </span>
               </div>
               <div className='flex items-start gap-2'>
                 <div className='size-4 lg:size-6 shrink-0' />
-                <span className='text-xs lg:text-sm text-gray shrink-0 whitespace-nowrap'>Специализация</span>
-                <span className='text-sm font-medium lg:text-sm wrap-break-word'>{booking.professional.specialty}</span>
+                <span className='text-xs lg:text-sm text-gray shrink-0 w-24 lg:w-28'>Специализация</span>
+                <span className='text-sm font-medium lg:text-sm flex-1 min-w-0 wrap-break-word'>{booking.professional.specialty}</span>
               </div>
             </div>
             <div className='flex items-start gap-2 w-full border-t border-gray py-2 lg:py-4'>
