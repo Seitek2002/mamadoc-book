@@ -31,7 +31,7 @@ export default async function Home({
               id={specialist.id}
               title={specialist.title}
               img={specialist.icon_url}
-              href={`/specialists?org=${id}&branch=${branch}&specialty=${specialist.id}`}
+              href={`/specialists?org=${id}&branch=${branch}&specialty=${specialist.slug}`}
             />
           ))}
         </div>

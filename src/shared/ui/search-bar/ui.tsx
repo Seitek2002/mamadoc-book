@@ -24,11 +24,11 @@ export const SearchBar = ({ specialists, org, branch, initialQuery = '' }: Searc
     ? specialists.filter((s) => s.title.toLowerCase().includes(query.toLowerCase()))
     : specialists;
 
-  const buildSpecialtyHref = (specialistId: number) => {
+  const buildSpecialtyHref = (specialistSlug: string) => {
     const params = new URLSearchParams();
     if (org) params.set('org', org);
     if (branch) params.set('branch', branch);
-    params.set('specialty', String(specialistId));
+    params.set('specialty', specialistSlug);
     return `/specialists?${params}`;
   };
 
@@ -71,7 +71,7 @@ export const SearchBar = ({ specialists, org, branch, initialQuery = '' }: Searc
             id={el.id}
             title={el.title}
             img={el.icon_url}
-            href={buildSpecialtyHref(el.id)}
+            href={buildSpecialtyHref(el.slug)}
           />
         ))}
       </div>

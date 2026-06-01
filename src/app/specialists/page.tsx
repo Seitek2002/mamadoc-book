@@ -29,6 +29,11 @@ export default async function SpecialistsPage({
     ? await getBranchSpecialists(branch)
     : await getSpecialists();
 
+  // specialty is now a slug — look up the numeric ID for the API filter
+  const specialistId = specialty
+    ? specialistsRes.data.find((s) => s.slug === specialty)?.id
+    : undefined;
+
   return (
     <div className='max-w-7xl mx-auto px-4'>
       <PageTitle title='Выберите специалиста, чтобы посмотреть свободные окна' />
@@ -46,7 +51,7 @@ export default async function SpecialistsPage({
           <DoctorsList
             organizationId={org ? Number(org) : undefined}
             branchId={branch ? Number(branch) : undefined}
-            specialistId={specialty ? Number(specialty) : undefined}
+            specialistId={specialistId}
             search={q}
           />
         </Suspense>
