@@ -62,7 +62,7 @@ export default async function Home({
 
   return (
     <div className='px-4'>
-      <PageTitle title='Выберите клинику, чтобы записаться к специалисту' />
+      <PageTitle title='Выберите организацию, чтобы записаться к специалисту' />
       <OrganizationsList />
     </div>
   );
