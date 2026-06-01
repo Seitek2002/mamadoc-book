@@ -227,6 +227,7 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
         access_token = profileRes.access_token;
       }
       setToken(access_token);
+      localStorage.setItem('saved_phone', currentPhone);
 
       const result = await createBooking(
         {
