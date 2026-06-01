@@ -207,23 +207,22 @@ export function SuccessModal({ isOpen, onClose, booking }: SuccessModalProps) {
               </div>
             </div>
             <div className='border-t border-gray'></div>
-            <div className='flex items-start gap-4 w-full lg:w-[67%] py-2 lg:py-4'>
-              <div className='flex items-start gap-2 shrink-0'>
+            <div className='flex flex-col w-full lg:w-[67%] py-2 lg:py-4 gap-2'>
+              <div className='flex items-start gap-2'>
                 <svg className='size-4 lg:size-6 shrink-0 mt-0.5' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' viewBox='0 0 24 24'>
                   <path d='M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z'></path>
                   <line x1='3' y1='6' x2='21' y2='6'></line>
                   <path d='M16 10a4 4 0 0 1-8 0'></path>
                 </svg>
-                <div>
-                  <div className='leading-4 text-xs mb-2 lg:text-sm whitespace-nowrap'>Услуга</div>
-                  <div className='leading-4 text-xs lg:text-sm whitespace-nowrap'>Специализация</div>
-                </div>
-              </div>
-              <div className='flex-1 min-w-0'>
-                <div className='text-sm font-medium mb-2 lg:text-sm wrap-break-word'>
+                <span className='text-xs lg:text-sm text-gray shrink-0 whitespace-nowrap'>Услуга</span>
+                <span className='text-sm font-medium lg:text-sm wrap-break-word'>
                   {booking.services.map((s) => s.name).join(', ')}
-                </div>
-                <div className='text-sm font-medium lg:text-sm wrap-break-word'>{booking.professional.specialty}</div>
+                </span>
+              </div>
+              <div className='flex items-start gap-2'>
+                <div className='size-4 lg:size-6 shrink-0' />
+                <span className='text-xs lg:text-sm text-gray shrink-0 whitespace-nowrap'>Специализация</span>
+                <span className='text-sm font-medium lg:text-sm wrap-break-word'>{booking.professional.specialty}</span>
               </div>
             </div>
             <div className='flex items-start gap-2 w-full border-t border-gray py-2 lg:py-4'>
