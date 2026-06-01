@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getOrganizationById, getOrganizationBranches, getBranchSpecialists } from '@/shared/api';
 import { OrganizationsList } from '@/widgets';
 import { PageTitle, Specialists, Branch } from '@/shared/ui';
+import { OrgCleaner } from '@/shared/ui/organizations/OrgCleaner';
 
 export default async function Home({
   searchParams,
@@ -62,6 +63,7 @@ export default async function Home({
 
   return (
     <div className='px-4'>
+      <OrgCleaner />
       <PageTitle title='Выберите организацию, чтобы записаться к специалисту' />
       <OrganizationsList />
     </div>

@@ -1,11 +1,18 @@
+'use client';
+
 import Link from 'next/link';
 import ArrowIcon from '@/shared/assets/icons/arrow.svg';
 import type { ApiOrganizationPreview } from '@/shared/mock';
 
 export const Organization = ({ org }: { org: ApiOrganizationPreview }) => {
+  const handleClick = () => {
+    localStorage.setItem('selected_org', JSON.stringify({ name: org.name, logo_url: org.logo_url ?? null }));
+  };
+
   return (
     <Link
       href={'/?id=' + org.id}
+      onClick={handleClick}
       className='bg-white p-4 flex items-center gap-4 rounded-[10px] w-full overflow-hidden md:w-auto border border-[#E6EAF0] active:scale-95'
     >
       <div className='size-8 shrink-0 rounded-lg bg-[#F0F4FF] flex items-center justify-center'>
