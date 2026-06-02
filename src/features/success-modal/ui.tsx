@@ -12,10 +12,11 @@ interface SuccessModalProps {
 }
 
 const AvatarCard = ({ booking }: { booking: BookingResult }) => {
+  const [imgError, setImgError] = useState(false);
   return (
     <>
       <div className='w-full h-40.25 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-center'>
-        {booking.professional.photo_url ? (
+        {booking.professional.photo_url && !imgError ? (
           <Image
             src={booking.professional.photo_url}
             alt={booking.professional.full_name}
@@ -23,6 +24,7 @@ const AvatarCard = ({ booking }: { booking: BookingResult }) => {
             height={400}
             className='shrink-0 object-cover w-full h-full rounded-[10px] overflow-hidden'
             crossOrigin='anonymous'
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className='w-full h-full bg-[#007BFF] rounded-[10px] flex items-center justify-center'>

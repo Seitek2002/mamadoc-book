@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useState } from 'react';
 
 export const AvatarBlock = ({
   photo_url,
@@ -9,9 +12,11 @@ export const AvatarBlock = ({
   full_name: string;
   specialty: string;
 }) => {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <div className='w-32.25 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-stretch'>
-      {photo_url ? (
+      {photo_url && !imgError ? (
         <Image
           src={photo_url}
           alt={full_name}
@@ -19,6 +24,7 @@ export const AvatarBlock = ({
           height={400}
           loading='lazy'
           className='shrink-0 object-cover w-full h-full'
+          onError={() => setImgError(true)}
         />
       ) : (
         <div className='w-full h-full bg-[#007BFF] flex items-center justify-center'>

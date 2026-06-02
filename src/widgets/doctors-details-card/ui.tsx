@@ -1,15 +1,19 @@
+'use client';
+
 import Image from 'next/image';
+import { useState } from 'react';
 import type { ApiDoctorDetail } from '@/shared/mock';
 import { DoctorsName } from '@/shared/ui';
 
 import StarIcon from '@/shared/assets/icons/doctor-detail/start-icon.svg';
 
 export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail }) => {
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div className='flex items-stretch gap-3 bg-white md:p-5 mt-6 lg:mt-0 rounded-2xl md:max-w-max md:mx-auto'>
       <div className='w-[36%] h-40 shrink-0 overflow-hidden rounded-tl-[5px] rounded-bl-[5px] lg:rounded-[5px]'>
-        {person.photo_url ? (
+        {person.photo_url && !imgError ? (
           <Image
             src={person.photo_url}
             alt={person.full_name}
@@ -17,6 +21,7 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
             height={400}
             priority
             className='shrink-0 object-cover w-full h-full'
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className='w-full h-full bg-[#007BFF] flex items-center justify-center'>
