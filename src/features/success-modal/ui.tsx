@@ -15,14 +15,23 @@ const AvatarCard = ({ booking }: { booking: BookingResult }) => {
   return (
     <>
       <div className='w-full h-40.25 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-center'>
-        <Image
-          src={booking.professional.photo_url}
-          alt={booking.professional.full_name}
-          width={400}
-          height={400}
-          className='shrink-0 object-cover w-full h-full rounded-[10px] overflow-hidden'
-          crossOrigin='anonymous'
-        />
+        {booking.professional.photo_url ? (
+          <Image
+            src={booking.professional.photo_url}
+            alt={booking.professional.full_name}
+            width={400}
+            height={400}
+            className='shrink-0 object-cover w-full h-full rounded-[10px] overflow-hidden'
+            crossOrigin='anonymous'
+          />
+        ) : (
+          <div className='w-full h-full bg-[#F0F4FF] rounded-[10px] flex items-center justify-center'>
+            <svg width='64' height='64' viewBox='0 0 24 24' fill='none'>
+              <circle cx='12' cy='8' r='4' fill='#7FA8FF' />
+              <path d='M4 20c0-4 3.582-7 8-7s8 3 8 7' stroke='#7FA8FF' strokeWidth='2' strokeLinecap='round' />
+            </svg>
+          </div>
+        )}
         <span className='absolute right-0 bottom-0 px-2 py-1.5 rounded-tl-[10px] inline text-xs font-semibold text-gray bg-white'>
           {booking.professional.specialty}
         </span>

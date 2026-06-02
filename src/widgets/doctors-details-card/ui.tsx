@@ -9,14 +9,23 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
   return (
     <div className='flex items-stretch gap-3 bg-white md:p-5 mt-6 lg:mt-0 rounded-2xl md:max-w-max md:mx-auto'>
       <div className='w-[36%] h-40 shrink-0 overflow-hidden rounded-tl-[5px] rounded-bl-[5px] lg:rounded-[5px]'>
-        <Image
-          src={person.photo_url}
-          alt={person.full_name}
-          width={400}
-          height={400}
-          priority
-          className='shrink-0 object-cover w-full h-full'
-        />
+        {person.photo_url ? (
+          <Image
+            src={person.photo_url}
+            alt={person.full_name}
+            width={400}
+            height={400}
+            priority
+            className='shrink-0 object-cover w-full h-full'
+          />
+        ) : (
+          <div className='w-full h-full bg-[#F0F4FF] flex items-center justify-center'>
+            <svg width='48' height='48' viewBox='0 0 24 24' fill='none'>
+              <circle cx='12' cy='8' r='4' fill='#7FA8FF' />
+              <path d='M4 20c0-4 3.582-7 8-7s8 3 8 7' stroke='#7FA8FF' strokeWidth='2' strokeLinecap='round' />
+            </svg>
+          </div>
+        )}
       </div>
       <div className='font-medium text-xs md:text-base flex flex-col justify-between py-2.5 lg:py-0'>
         <div>
