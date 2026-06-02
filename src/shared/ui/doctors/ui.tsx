@@ -7,7 +7,7 @@ export const Doctors = ({ el }: { el: ApiDoctorPreview }) => {
   return (
     <Link
       href={'/specialist/' + el.slug}
-      className='flex lg:flex-col lg:max-w-57.5 rounded-[10px] overflow-hidden bg-white border border-[#E7E7EE] active:scale-95'
+      className='flex lg:flex-col w-full lg:max-w-57.5 rounded-[10px] overflow-hidden bg-white border border-[#E7E7EE] active:scale-95'
     >
       <AvatarBlock photo_url={el.photo_url} full_name={el.full_name} specialty={el.specialty} />
       <div className='p-2.5 flex flex-col flex-1'>
