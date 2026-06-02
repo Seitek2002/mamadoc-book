@@ -5,16 +5,7 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
 
   images: {
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'iwork.operator.kg',
-      },
-      {
-        protocol: 'https',
-        hostname: 'iwork.operator.kg',
-      },
-    ]
+    unoptimized: true,
   },
 
   turbopack: {
