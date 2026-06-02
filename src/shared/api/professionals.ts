@@ -13,6 +13,7 @@ export function getProfessionals(params?: {
   specialist_id?: number;
   specialist_ids?: number[];
   organization_id?: number;
+  organization_slug?: string;
   service_id?: number;
   service_ids?: number[];
   search?: string;
@@ -24,6 +25,7 @@ export function getProfessionals(params?: {
   if (params?.specialist_id) qs.set('specialist_id', String(params.specialist_id));
   if (params?.specialist_ids?.length) qs.set('specialist_ids', params.specialist_ids.join(','));
   if (params?.organization_id) qs.set('organization_id', String(params.organization_id));
+  if (params?.organization_slug) qs.set('organization_slug', params.organization_slug);
   if (params?.service_id) qs.set('service_id', String(params.service_id));
   if (params?.service_ids?.length) qs.set('service_ids', params.service_ids.join(','));
   if (params?.search) qs.set('search', params.search);

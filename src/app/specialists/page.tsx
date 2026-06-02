@@ -49,8 +49,8 @@ export default async function SpecialistsPage({
         </div>
         <Suspense fallback={<DoctorsListFallback />}>
           <DoctorsList
-            organizationId={org ? Number(org) : undefined}
-            branchId={branch ? Number(branch) : undefined}
+            organizationSlug={org}
+            branchSlug={branch}
             specialistId={specialistId}
             search={q}
           />

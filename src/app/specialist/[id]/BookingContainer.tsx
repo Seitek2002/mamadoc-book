@@ -231,7 +231,7 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
 
       const result = await createBooking(
         {
-          professional_id: Number(id),
+          professional_id: doctor.id,
           date: selectedDate,
           time: selectedTime,
           service_ids: selectedServices,

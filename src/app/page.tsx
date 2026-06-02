@@ -7,18 +7,18 @@ import { OrgCleaner } from '@/shared/ui/organizations/OrgCleaner';
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ id?: string; branch?: string }>;
+  searchParams: Promise<{ org?: string; branch?: string }>;
 }) {
-  const { id, branch } = await searchParams;
+  const { org, branch } = await searchParams;
 
-  if (id && branch) {
+  if (org && branch) {
     const [orgRes, specialistsRes] = await Promise.all([
-      getOrganizationById(id),
+      getOrganizationById(org),
       getBranchSpecialists(branch),
     ]);
 
     if (specialistsRes.data.length === 1) {
-      redirect(`/specialists?org=${id}&branch=${branch}&specialty=${specialistsRes.data[0].id}`);
+      redirect(`/specialists?org=${org}&branch=${branch}&specialty=${specialistsRes.data[0].slug}`);
     }
 
     return (
@@ -31,7 +31,7 @@ export default async function Home({
               id={specialist.id}
               title={specialist.title}
               img={specialist.icon_url}
-              href={`/specialists?org=${id}&branch=${branch}&specialty=${specialist.slug}`}
+              href={`/specialists?org=${org}&branch=${branch}&specialty=${specialist.slug}`}
             />
           ))}
         </div>
@@ -39,14 +39,14 @@ export default async function Home({
     );
   }
 
-  if (id) {
+  if (org) {
     const [orgRes, branchesRes] = await Promise.all([
-      getOrganizationById(id),
-      getOrganizationBranches(id),
+      getOrganizationById(org),
+      getOrganizationBranches(org),
     ]);
 
     if (branchesRes.data.length === 1) {
-      redirect(`/?id=${id}&branch=${branchesRes.data[0].id}`);
+      redirect(`/?org=${org}&branch=${branchesRes.data[0].slug}`);
     }
 
     return (
@@ -54,7 +54,7 @@ export default async function Home({
         <PageTitle title={`${orgRes.data.name} — выберите филиал`} />
         <div className='flex flex-col gap-2.5 my-6 md:grid md:grid-cols-2 lg:grid-cols-3 rounded-[20px] md:bg-white p-5'>
           {branchesRes.data.map((branchItem) => (
-            <Branch key={branchItem.id} branch={branchItem} orgId={id} />
+            <Branch key={branchItem.id} branch={branchItem} orgSlug={org} />
           ))}
         </div>
       </div>

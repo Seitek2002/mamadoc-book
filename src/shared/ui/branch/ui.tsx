@@ -2,10 +2,10 @@ import Link from 'next/link';
 import ArrowIcon from '@/shared/assets/icons/arrow.svg';
 import type { ApiBranch } from '@/shared/mock';
 
-export const Branch = ({ branch, orgId }: { branch: ApiBranch; orgId: string | number }) => {
+export const Branch = ({ branch, orgSlug }: { branch: ApiBranch; orgSlug: string }) => {
   return (
     <Link
-      href={`/?id=${orgId}&branch=${branch.id}`}
+      href={`/?org=${orgSlug}&branch=${branch.slug}`}
       className='bg-white p-4 flex items-center gap-4 rounded-[10px] w-full overflow-hidden md:w-auto border border-[#E6EAF0] active:scale-95'
     >
       <div className='size-8 shrink-0 rounded-lg bg-[#F0F8FF] flex items-center justify-center'>

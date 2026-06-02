@@ -11,7 +11,7 @@ export const Organization = ({ org }: { org: ApiOrganizationPreview }) => {
 
   return (
     <Link
-      href={'/?id=' + org.id}
+      href={'/?org=' + org.slug}
       onClick={handleClick}
       className='bg-white p-4 flex items-center gap-4 rounded-[10px] w-full overflow-hidden md:w-auto border border-[#E6EAF0] active:scale-95'
     >

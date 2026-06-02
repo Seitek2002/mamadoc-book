@@ -57,6 +57,7 @@ export interface ApiAvailability {
 
 export interface ApiDoctorPreview {
   id: number;
+  slug: string;
   full_name: string;
   photo_url: string;
   specialty: string;
@@ -132,15 +133,19 @@ export interface ApiPhoneCountry {
 
 export interface ApiBranch {
   id: number;
+  slug: string;
   organization_id: number;
   organization_name: string;
   title: string;
   address: string;
   professionals_count: number;
+  paylink_enabled?: boolean;
+  paylink_amount?: number;
 }
 
 export interface ApiOrganizationPreview {
   id: number;
+  slug: string;
   name: string;
   logo_url?: string;
   paylink_enabled: boolean;
@@ -151,6 +156,7 @@ export interface ApiOrganizationPreview {
 
 export interface ApiOrganizationDetail {
   id: number;
+  slug: string;
   name: string;
   logo_url?: string;
   paylink_enabled: boolean;
