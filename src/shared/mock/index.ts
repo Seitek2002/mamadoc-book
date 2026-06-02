@@ -198,6 +198,7 @@ export const MOCK_DOCTORS_LIST: ApiPaginatedResponse<ApiDoctorPreview[]> = {
   data: [
     {
       id: 1,
+      slug: 'surapbekov-bekmаmat',
       full_name: 'Сурапбеков Бекмамат Султангазиевич',
       photo_url: doctor1.src,
       specialty: 'Гинеколог',
@@ -207,6 +208,7 @@ export const MOCK_DOCTORS_LIST: ApiPaginatedResponse<ApiDoctorPreview[]> = {
     },
     {
       id: 2,
+      slug: 'adylbekova-alina',
       full_name: 'Адьлбекова Алина Адьлбековна',
       photo_url: doctor2.src,
       specialty: 'Физиотерапевт',
@@ -216,6 +218,7 @@ export const MOCK_DOCTORS_LIST: ApiPaginatedResponse<ApiDoctorPreview[]> = {
     },
     {
       id: 3,
+      slug: 'buudajbekova-meerim',
       full_name: 'Буудайбекова Мээрим Улановна',
       photo_url: doctor3.src,
       specialty: 'Физиотерапевт',
@@ -225,6 +228,7 @@ export const MOCK_DOCTORS_LIST: ApiPaginatedResponse<ApiDoctorPreview[]> = {
     },
     {
       id: 4,
+      slug: 'knyazev-igor',
       full_name: 'Князев Игорь Алексеевич',
       photo_url: doctor4.src,
       specialty: 'Физиотерапевт',
@@ -234,6 +238,7 @@ export const MOCK_DOCTORS_LIST: ApiPaginatedResponse<ApiDoctorPreview[]> = {
     },
     {
       id: 5,
+      slug: 'tynarbekova-zhyldyz',
       full_name: 'Тынарбекова Жылдыз Эмилбековна',
       photo_url: doctor5.src,
       specialty: 'Физиотерапевт',
@@ -243,6 +248,7 @@ export const MOCK_DOCTORS_LIST: ApiPaginatedResponse<ApiDoctorPreview[]> = {
     },
     {
       id: 6,
+      slug: 'isaeva-ajsuluu',
       full_name: 'Исаева Айсулуу Камиловна',
       photo_url: doctor5.src,
       specialty: 'Физиотерапевт',

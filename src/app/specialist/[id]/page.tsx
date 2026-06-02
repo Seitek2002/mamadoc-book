@@ -7,7 +7,7 @@ export const revalidate = 300;
 export async function generateStaticParams() {
   try {
     const { data } = await getProfessionals({ page: 1 });
-    return data.map((d) => ({ id: d.slug }));
+    return data.filter((d) => d.slug).map((d) => ({ id: d.slug }));
   } catch {
     return [];
   }
