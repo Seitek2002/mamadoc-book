@@ -44,6 +44,7 @@ export default async function SpecialistsPage({
             specialists={specialistsRes.data}
             org={org}
             branch={branch}
+            specialty={specialty}
             initialQuery={q}
           />
         </div>

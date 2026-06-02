@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { getOrganizationById, getOrganizationBranches, getBranchSpecialists } from '@/shared/api';
 import { OrganizationsList, DoctorsList } from '@/widgets';
-import { PageTitle, Branch, SearchBar } from '@/shared/ui';
+import { PageTitle, Branch, SearchBar, Specialists } from '@/shared/ui';
 import { OrgCleaner } from '@/shared/ui/organizations/OrgCleaner';
 
 const DoctorsListFallback = () => (
@@ -23,42 +23,98 @@ const DoctorsListFallback = () => (
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ org?: string; branch?: string; q?: string }>;
+  searchParams: Promise<{ org?: string; branch?: string; specialty?: string; q?: string }>;
 }) {
-  const { org, branch, q } = await searchParams;
+  const { org, branch, specialty, q } = await searchParams;
 
-  // org + branch: показываем всех докторов филиала
+  // org + branch: основной экран выбора специалиста
   if (org && branch) {
     const [orgRes, specialistsRes] = await Promise.all([
       getOrganizationById(org),
       getBranchSpecialists(branch),
     ]);
 
+    const specialistId = specialty
+      ? specialistsRes.data.find((s) => s.slug === specialty)?.id
+      : undefined;
+
+    const buildSpecialtyHref = (slug: string) =>
+      `/?org=${org}&branch=${branch}&specialty=${slug}`;
+
     return (
       <div className='max-w-7xl mx-auto px-4'>
-        <PageTitle title={orgRes.data.name} />
-        <div className='flex flex-col items-start mt-3 lg:flex-row lg:gap-7.5'>
-          <div className='w-full lg:w-[33%]'>
-            <SearchBar
-              specialists={specialistsRes.data}
-              org={org}
-              branch={branch}
-              initialQuery={q}
-            />
+
+        {/* ── MOBILE: шаг 1 — список специализаций ── */}
+        {!specialty && (
+          <div className='lg:hidden'>
+            <PageTitle title='Выберите специалиста' />
+            <div className='flex flex-col gap-2.5 mt-3'>
+              {specialistsRes.data.map((s) => (
+                <Specialists
+                  key={s.id}
+                  id={s.id}
+                  title={s.title}
+                  img={s.icon_url}
+                  href={buildSpecialtyHref(s.slug)}
+                />
+              ))}
+            </div>
           </div>
-          <Suspense fallback={<DoctorsListFallback />}>
-            <DoctorsList
-              organizationSlug={org}
-              branchSlug={branch}
-              search={q}
-            />
-          </Suspense>
+        )}
+
+        {/* ── MOBILE: шаг 2 — список докторов ── */}
+        {specialty && (
+          <div className='lg:hidden'>
+            <PageTitle title='Выберите врача' />
+            <div className='mt-3'>
+              <SearchBar
+                specialists={specialistsRes.data}
+                org={org}
+                branch={branch}
+                specialty={specialty}
+                initialQuery={q}
+              />
+            </div>
+            <Suspense fallback={<DoctorsListFallback />}>
+              <DoctorsList
+                organizationSlug={org}
+                branchSlug={branch}
+                specialistId={specialistId}
+                search={q}
+              />
+            </Suspense>
+          </div>
+        )}
+
+        {/* ── DESKTOP: всё сразу ── */}
+        <div className='hidden lg:block'>
+          <PageTitle title={orgRes.data.name} />
+          <div className='flex items-start mt-3 gap-7.5'>
+            <div className='w-[33%]'>
+              <SearchBar
+                specialists={specialistsRes.data}
+                org={org}
+                branch={branch}
+                specialty={specialty}
+                initialQuery={q}
+              />
+            </div>
+            <Suspense fallback={<DoctorsListFallback />}>
+              <DoctorsList
+                organizationSlug={org}
+                branchSlug={branch}
+                specialistId={specialistId}
+                search={q}
+              />
+            </Suspense>
+          </div>
         </div>
+
       </div>
     );
   }
 
-  // только org: показываем выбор филиала
+  // только org: выбор филиала
   if (org) {
     const [orgRes, branchesRes] = await Promise.all([
       getOrganizationById(org),

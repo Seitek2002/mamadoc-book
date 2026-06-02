@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import SearchIcon from '@/shared/assets/icons/search/search-icon.svg';
 import type { ApiSpecialist } from '@/shared/mock';
 import { Specialists } from '../specialists';
@@ -10,10 +11,11 @@ interface SearchBarProps {
   specialists: ApiSpecialist[];
   org?: string;
   branch?: string;
+  specialty?: string;
   initialQuery?: string;
 }
 
-export const SearchBar = ({ specialists, org, branch, initialQuery = '' }: SearchBarProps) => {
+export const SearchBar = ({ specialists, org, branch, specialty, initialQuery = '' }: SearchBarProps) => {
   const [query, setQuery] = useState(initialQuery);
   const router = useRouter();
   const pathname = usePathname();
@@ -29,8 +31,15 @@ export const SearchBar = ({ specialists, org, branch, initialQuery = '' }: Searc
     if (org) params.set('org', org);
     if (branch) params.set('branch', branch);
     params.set('specialty', specialistSlug);
-    return `/specialists?${params}`;
+    return `${pathname}?${params}`;
   };
+
+  const resetHref = (() => {
+    const params = new URLSearchParams();
+    if (org) params.set('org', org);
+    if (branch) params.set('branch', branch);
+    return `${pathname}?${params}`;
+  })();
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -64,7 +73,16 @@ export const SearchBar = ({ specialists, org, branch, initialQuery = '' }: Searc
         />
         <SearchIcon className='shrink-0 absolute right-2.5' />
       </label>
-      <div className='hidden lg:flex flex-col gap-2.5 my-3'>
+
+      <div className='hidden lg:flex flex-col gap-2.5 mt-3'>
+        {specialty && (
+          <Link
+            href={resetHref}
+            className='text-xs font-medium text-[#007BFF] self-end hover:underline'
+          >
+            Сбросить
+          </Link>
+        )}
         {filtered.map((el) => (
           <Specialists
             key={el.id}
@@ -72,6 +90,7 @@ export const SearchBar = ({ specialists, org, branch, initialQuery = '' }: Searc
             title={el.title}
             img={el.icon_url}
             href={buildSpecialtyHref(el.slug)}
+            isActive={el.slug === specialty}
           />
         ))}
       </div>
