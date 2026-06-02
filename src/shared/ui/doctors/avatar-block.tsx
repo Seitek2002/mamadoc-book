@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { fixMediaUrl } from '@/shared/utils/media';
 
 export const AvatarBlock = ({
   photo_url,
@@ -18,7 +19,7 @@ export const AvatarBlock = ({
     <div className='w-32.25 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-stretch'>
       {photo_url && !imgError ? (
         <Image
-          src={photo_url}
+          src={fixMediaUrl(photo_url)}
           alt={full_name}
           width={400}
           height={400}

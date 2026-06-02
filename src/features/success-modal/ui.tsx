@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
 import type { BookingResult } from '@/shared/api';
+import { fixMediaUrl } from '@/shared/utils/media';
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -18,7 +19,7 @@ const AvatarCard = ({ booking }: { booking: BookingResult }) => {
       <div className='w-full h-40.25 relative lg:w-full lg:h-52.25 shrink-0 flex justify-center items-center'>
         {booking.professional.photo_url && !imgError ? (
           <Image
-            src={booking.professional.photo_url}
+            src={fixMediaUrl(booking.professional.photo_url)}
             alt={booking.professional.full_name}
             width={400}
             height={400}

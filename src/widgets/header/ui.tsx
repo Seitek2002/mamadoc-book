@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import logo from '@/shared/assets/images/logo.png';
+import { fixMediaUrl } from '@/shared/utils/media';
 import BellIcon from '@/shared/assets/icons/header/bell.svg';
 import { BurgerMenu } from './BurgerMenu';
 
@@ -44,7 +45,7 @@ export const Header = () => {
         {org ? (
           org.logo_url ? (
             <Image
-              src={org.logo_url}
+              src={fixMediaUrl(org.logo_url)}
               alt={org.name}
               width={94}
               height={30}
