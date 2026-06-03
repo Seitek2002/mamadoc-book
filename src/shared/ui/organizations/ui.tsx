@@ -7,6 +7,7 @@ import type { ApiOrganizationPreview } from '@/shared/mock';
 export const Organization = ({ org }: { org: ApiOrganizationPreview }) => {
   const handleClick = () => {
     localStorage.setItem('selected_org', JSON.stringify({ name: org.name, logo_url: org.logo_url ?? null }));
+    window.dispatchEvent(new CustomEvent('org-changed'));
   };
 
   return (

@@ -33,10 +33,17 @@ export const Header = () => {
   const [org, setOrg] = useState<SavedOrg | null>(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem('selected_org');
-    if (raw) {
-      try { setOrg(JSON.parse(raw)); } catch { /* ignore */ }
-    }
+    const sync = () => {
+      const raw = localStorage.getItem('selected_org');
+      if (raw) {
+        try { setOrg(JSON.parse(raw)); } catch { /* ignore */ }
+      } else {
+        setOrg(null);
+      }
+    };
+    sync();
+    window.addEventListener('org-changed', sync);
+    return () => window.removeEventListener('org-changed', sync);
   }, []);
 
   return (
