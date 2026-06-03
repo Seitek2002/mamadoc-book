@@ -53,6 +53,7 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, coun
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isOpen) return;
     const savedPhone = localStorage.getItem('saved_phone');
     if (savedPhone) {
       const matched = resolvedCountries.find((c) => savedPhone.startsWith(c.code));
@@ -62,7 +63,7 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, coun
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
