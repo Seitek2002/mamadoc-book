@@ -42,7 +42,7 @@ export default async function Home({
       `/?org=${org}&branch=${branch}&specialty=${slug}`;
 
     return (
-      <div className='max-w-7xl mx-auto px-4'>
+      <div className='px-4'>
 
         {/* ── MOBILE: шаг 1 — список специализаций ── */}
         {!specialty && (

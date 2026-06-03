@@ -42,7 +42,7 @@ export default async function RootLayout({
       <body className={`${montserrat.className} ${montserrat.variable} antialiased bg-[#F6F6F6]`}>
         <Header />
         <FeaturesProvider features={features}>
-          <main>{children}</main>
+          <main className='max-w-7xl mx-auto'>{children}</main>
         </FeaturesProvider>
       </body>
     </html>

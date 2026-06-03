@@ -40,7 +40,8 @@ export const Header = () => {
   }, []);
 
   return (
-    <header className='py-4 px-4 flex justify-between items-center md:bg-white'>
+    <header className='py-4 md:bg-white'>
+      <div className='max-w-7xl mx-auto px-4 flex justify-between items-center'>
       <Link href={'/'}>
         {org ? (
           org.logo_url ? (
@@ -86,6 +87,7 @@ export const Header = () => {
             <path d='M4 20c0-4 3.582-7 8-7s8 3 8 7' stroke='#7FA8FF' strokeWidth='2' strokeLinecap='round' />
           </svg>
         </div>
+      </div>
       </div>
     </header>
   );

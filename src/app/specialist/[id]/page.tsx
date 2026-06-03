@@ -24,7 +24,7 @@ async function DoctorsPage({ params }: { params: Promise<{ id: string }> }) {
   ]);
 
   return (
-    <div className='max-w-7xl mx-auto md:pt-0'>
+    <div className='md:pt-0'>
       <div className='px-0 lg:px-4 mb-4'>
         <PageTitle title='Выберите дату и время, чтобы записаться' />
       </div>
