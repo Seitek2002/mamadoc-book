@@ -10,7 +10,8 @@ import {
   OTPModal,
   SuccessModal,
 } from '@/features';
-import type { ApiDoctorDetail, ApiCalendarDay, ApiPhoneCountry } from '@/shared/mock';
+import type { ApiDoctorDetail, ApiCalendarDay, ApiPhoneCountry, ApiReview } from '@/shared/mock';
+import { ReviewsBlock } from './ReviewsBlock';
 import {
   sendOtp,
   verifyOtp,
@@ -29,6 +30,8 @@ interface BookingWrapperProps {
   doctor: ApiDoctorDetail;
   calendar: ApiCalendarDay[];
   countries?: ApiPhoneCountry[];
+  reviews: ApiReview[];
+  reviewsTotal: number;
 }
 
 const Tooltip = ({ text }: { text: string }) => (
@@ -85,7 +88,7 @@ const StepIndicator = ({ current }: { current: number }) => (
   </div>
 );
 
-export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapperProps) {
+export function BookingWrapper({ id, doctor, calendar, countries, reviews, reviewsTotal }: BookingWrapperProps) {
   const firstAvailable = calendar.find((d) => d.is_available);
 
   const [selectedDate, setSelectedDate] = useState(firstAvailable?.date ?? '');
@@ -254,9 +257,12 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
     <>
       <div className='grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-4 items-start pb-24 lg:pb-0'>
 
-        {/* Left column: doctor card */}
-        <div className='lg:col-start-1 lg:row-start-1 mx-4'>
+        {/* Left column: doctor card + reviews (desktop — в одной ячейке, без gap) */}
+        <div className='lg:col-start-1 lg:row-start-1 mx-4 flex flex-col gap-4'>
           <DoctorsDetailsCard doctor={doctor} />
+          <div className='hidden lg:block'>
+            <ReviewsBlock reviews={reviews} total={reviewsTotal} />
+          </div>
         </div>
 
         {/* Right column: step indicator at top + step content (both mobile & desktop) */}
@@ -344,6 +350,12 @@ export function BookingWrapper({ id, doctor, calendar, countries }: BookingWrapp
             </button>
           </div>
         </div>
+
+        {/* Reviews: mobile only — after step content */}
+        <div className='lg:hidden mx-4 pb-24'>
+          <ReviewsBlock reviews={doctor.reviews.items} total={doctor.reviews.total_count} />
+        </div>
+
       </div>
 
       {/* Fixed mobile bottom */}

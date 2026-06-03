@@ -1,6 +1,6 @@
 import { PageTitle } from '@/shared/ui';
 import { BookingWrapper } from './BookingContainer';
-import { getProfessionals, getProfessionalById, getProfessionalCalendar, getPhoneCountries } from '@/shared/api';
+import { getProfessionals, getProfessionalById, getProfessionalCalendar, getPhoneCountries, getProfessionalReviews } from '@/shared/api';
 
 export const revalidate = 300;
 
@@ -16,10 +16,11 @@ export async function generateStaticParams() {
 async function DoctorsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const [doctorRes, calendarRes, countries] = await Promise.all([
+  const [doctorRes, calendarRes, countries, reviewsRes] = await Promise.all([
     getProfessionalById(id),
     getProfessionalCalendar(id),
     getPhoneCountries(),
+    getProfessionalReviews(id),
   ]);
 
   return (
@@ -27,7 +28,14 @@ async function DoctorsPage({ params }: { params: Promise<{ id: string }> }) {
       <div className='px-0 lg:px-4 mb-4'>
         <PageTitle title='Выберите дату и время, чтобы записаться' />
       </div>
-      <BookingWrapper id={id} doctor={doctorRes.data} calendar={calendarRes.data} countries={countries} />
+      <BookingWrapper
+        id={id}
+        doctor={doctorRes.data}
+        calendar={calendarRes.data}
+        countries={countries}
+        reviews={reviewsRes.data}
+        reviewsTotal={reviewsRes.pagination.total}
+      />
     </div>
   );
 }
