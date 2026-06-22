@@ -47,11 +47,11 @@ export function ServicesSelection({
             <button
               key={service.id}
               onClick={() => toggleService(service.id)}
-              className='grid grid-cols-[32px_1fr_70px] lg:grid-cols-[32px_1fr_60px] items-center gap-3 px-1 text-left hover:bg-gray-50 transition-colors rounded-lg py-1'
+              className='grid grid-cols-[32px_1fr_70px] lg:grid-cols-[32px_1fr_60px] items-start gap-3 px-1 text-left hover:bg-gray-50 transition-colors rounded-lg py-1'
             >
               <div
                 className={clsx(
-                  'size-6 rounded-sm border-2 flex justify-center items-center transition-colors',
+                  'size-6 rounded-sm border-2 flex justify-center items-center transition-colors mt-0.5',
                   isSelected
                     ? 'bg-[#5CB85C] border-[#5CB85C]'
                     : 'border-gray-300',
@@ -75,10 +75,17 @@ export function ServicesSelection({
                   </svg>
                 )}
               </div>
-              <span className='text-[12px] lg:text-[14px] text-[#333] font-medium leading-tight'>
-                {service.name}
-              </span>
-              <span className='text-[12px] lg:text-[14px] text-[#333] font-medium text-left'>
+              <div className='flex flex-col gap-0.5'>
+                <span className='text-[12px] lg:text-[14px] text-[#333] font-medium leading-tight'>
+                  {service.name}
+                </span>
+                {service.description && (
+                  <span className='text-[11px] text-[#9E9E9E] leading-snug whitespace-pre-line'>
+                    {service.description}
+                  </span>
+                )}
+              </div>
+              <span className='text-[12px] lg:text-[14px] text-[#333] font-medium text-left mt-0.5'>
                 {service.price}
               </span>
             </button>

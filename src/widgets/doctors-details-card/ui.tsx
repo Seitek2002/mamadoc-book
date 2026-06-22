@@ -12,7 +12,8 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className='flex items-stretch gap-3 bg-white md:p-5 mt-6 lg:mt-0 rounded-2xl md:mx-auto w-full'>
+    <div className='bg-white md:p-5 mt-6 lg:mt-0 rounded-2xl md:mx-auto w-full'>
+      <div className='flex items-stretch gap-3'>
       <div className='w-[36%] h-40 shrink-0 overflow-hidden rounded-tl-[5px] rounded-bl-[5px] lg:rounded-[5px]'>
         {person.photo_url && !imgError ? (
           <Image
@@ -62,6 +63,12 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
           <h2 className='mt-0.5 font-medium'>Стаж {person.experience_years} лет</h2>
         </div>
       </div>
+      </div>
+      {person.bio && (
+        <p className='text-xs text-[#6B6B6B] mt-3 leading-relaxed whitespace-pre-line px-3 pb-3 md:px-0 md:pb-0'>
+          {person.bio}
+        </p>
+      )}
     </div>
   );
 };
