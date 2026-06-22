@@ -33,7 +33,7 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
           </div>
         )}
       </div>
-      <div className='font-medium text-xs md:text-base flex flex-col justify-between py-2.5 lg:py-0'>
+      <div className='flex-1 font-medium text-xs md:text-base flex flex-col justify-between py-2.5 lg:py-0'>
         <div>
           <DoctorsName
             fullName={person.full_name}
