@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
 import type { BookingResult } from '@/shared/api';
 import { fixMediaUrl } from '@/shared/utils/media';
@@ -279,6 +280,12 @@ export function SuccessModal({ isOpen, onClose, booking }: SuccessModalProps) {
                 {isDownloading ? 'Скачиваем...' : 'Скачать'}
               </button>
             </div>
+            <Link
+              href='/bookings'
+              className='block w-full text-center text-sm font-medium text-[#6B6B6B] underline underline-offset-2 mt-3 hover:text-[#333] transition-colors'
+            >
+              Мои записи
+            </Link>
           </div>
         </div>
         <div className='border-l border-gray pl-6 hidden lg:flex flex-col justify-center items-center gap-7.5'>
@@ -304,6 +311,12 @@ export function SuccessModal({ isOpen, onClose, booking }: SuccessModalProps) {
                 {isDownloading ? 'Скачиваем...' : 'Скачать'}
               </button>
             </div>
+            <Link
+              href='/bookings'
+              className='block w-full text-center text-sm font-medium text-[#6B6B6B] underline underline-offset-2 mt-3 hover:text-[#333] transition-colors'
+            >
+              Мои записи
+            </Link>
           </div>
         </div>
       </div>

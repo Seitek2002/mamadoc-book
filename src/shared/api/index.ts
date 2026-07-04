@@ -7,5 +7,6 @@ export * from './meta';
 export * from './branches';
 export * from './auth';
 export * from './bookings';
+export * from './payments';
 export type { ApiError } from './client';
 export { getToken, setToken, removeToken } from './token';

@@ -9,6 +9,7 @@ import {
   PhoneModal,
   OTPModal,
   SuccessModal,
+  PaymentModal,
 } from '@/features';
 import type { ApiDoctorDetail, ApiCalendarDay, ApiPhoneCountry, ApiReview } from '@/shared/mock';
 import { ReviewsBlock } from './ReviewsBlock';
@@ -17,7 +18,9 @@ import {
   verifyOtp,
   completeProfile,
   createBooking,
+  createPaylink,
   setToken,
+  getToken,
   getProfessionalAvailableTimes,
   getProfessionalAvailableServices,
   type BookingResult,
@@ -103,6 +106,10 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentInfo, setPaymentInfo] = useState<{ url: string; amount: number } | null>(null);
+  const [paymentError, setPaymentError] = useState('');
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [currentPhone, setCurrentPhone] = useState('');
   const [bookingResult, setBookingResult] = useState<BookingResult | null>(null);
 
@@ -217,6 +224,23 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     }
   };
 
+  const submitBooking = async (access_token: string) => {
+    const result = await createBooking(
+      {
+        professional_id: doctor.id,
+        date: selectedDate,
+        time: selectedTime,
+        service_ids: selectedServices,
+      },
+      access_token,
+    );
+
+    setBookingResult(result.data);
+    setIsOtpModalOpen(false);
+    setIsPaymentModalOpen(false);
+    setIsSuccessModalOpen(true);
+  };
+
   const handleOtpSubmit = async (otpCode: string) => {
     setOtpError('');
     setIsOtpLoading(true);
@@ -232,24 +256,62 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
       setToken(access_token);
       localStorage.setItem('saved_phone', currentPhone);
 
-      const result = await createBooking(
-        {
-          professional_id: doctor.id,
-          date: selectedDate,
-          time: selectedTime,
-          service_ids: selectedServices,
-        },
-        access_token,
-      );
-
-      setBookingResult(result.data);
-      setIsOtpModalOpen(false);
-      setIsSuccessModalOpen(true);
+      try {
+        await submitBooking(access_token);
+      } catch (err) {
+        const e = err as ApiError;
+        if (e.error === 'payment_required') {
+          const branchId = Number(e.details?.branch_id);
+          const paylink = await createPaylink(branchId, access_token);
+          setPaymentInfo({ url: paylink.paylink_url, amount: paylink.amount });
+          setPaymentError('');
+          setIsOtpModalOpen(false);
+          setIsPaymentModalOpen(true);
+          return;
+        }
+        if (e.error === 'payment_not_paid') {
+          setPaymentError('Платёж ещё не подтверждён. Подождите немного и попробуйте снова.');
+          setIsOtpModalOpen(false);
+          setIsPaymentModalOpen(true);
+          return;
+        }
+        throw err;
+      }
     } catch (err) {
       const e = err as ApiError;
       setOtpError(e.message ?? 'Ошибка записи');
     } finally {
       setIsOtpLoading(false);
+    }
+  };
+
+  const handlePaymentConfirm = async () => {
+    const token = getToken();
+    if (!token) {
+      setIsPaymentModalOpen(false);
+      setIsPhoneModalOpen(true);
+      return;
+    }
+    setPaymentError('');
+    setIsPaymentLoading(true);
+    try {
+      await submitBooking(token);
+    } catch (err) {
+      const e = err as ApiError;
+      if (e.error === 'payment_not_paid') {
+        setPaymentError('Платёж ещё не подтверждён. Подождите немного и попробуйте снова.');
+      } else if (e.error === 'payment_required' && paymentInfo === null) {
+        try {
+          const paylink = await createPaylink(Number(e.details?.branch_id), token);
+          setPaymentInfo({ url: paylink.paylink_url, amount: paylink.amount });
+        } catch {
+          setPaymentError(e.message ?? 'Требуется оплата брони');
+        }
+      } else {
+        setPaymentError(e.message ?? 'Ошибка записи');
+      }
+    } finally {
+      setIsPaymentLoading(false);
     }
   };
 
@@ -387,6 +449,16 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
         phoneNumber={currentPhone}
         error={otpError}
         isLoading={isOtpLoading}
+      />
+
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => { setIsPaymentModalOpen(false); setPaymentError(''); }}
+        onPaid={handlePaymentConfirm}
+        paylinkUrl={paymentInfo?.url ?? ''}
+        amount={paymentInfo?.amount ?? 0}
+        error={paymentError}
+        isLoading={isPaymentLoading}
       />
 
       <SuccessModal

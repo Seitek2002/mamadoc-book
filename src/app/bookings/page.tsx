@@ -130,15 +130,15 @@ export default function BookingsPage() {
   const [isPhoneLoading, setIsPhoneLoading] = useState(false);
   const [isOtpLoading, setIsOtpLoading] = useState(false);
 
-  const fetchBookings = async (t: string) => {
-    setLoading(true);
+  const fetchBookings = async (t: string, silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const res = await getMyBookings(t);
       setBookings(res.data);
     } catch {
-      setBookings([]);
+      if (!silent) setBookings([]);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -147,6 +147,16 @@ export default function BookingsPage() {
     setTokenState(t);
     if (!t) { setLoading(false); return; }
     fetchBookings(t);
+
+    // Обновляем статусы, когда пользователь возвращается на вкладку
+    // (например, после оплаты брони на странице банка)
+    const refresh = () => {
+      if (document.visibilityState !== 'visible') return;
+      const current = getToken();
+      if (current) fetchBookings(current, true);
+    };
+    document.addEventListener('visibilitychange', refresh);
+    return () => document.removeEventListener('visibilitychange', refresh);
   }, []);
 
   const handlePhoneSubmit = async (phone: string) => {
