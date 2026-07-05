@@ -235,6 +235,13 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
       access_token,
     );
 
+    // Бронь требует предоплаты — сервер вернул ссылку на оплату.
+    // После оплаты банк вернёт пользователя на /bookings.
+    if (result.data.paylink_url) {
+      window.location.href = result.data.paylink_url;
+      return;
+    }
+
     setBookingResult(result.data);
     setIsOtpModalOpen(false);
     setIsPaymentModalOpen(false);

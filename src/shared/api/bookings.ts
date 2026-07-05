@@ -32,6 +32,7 @@ export interface BookingResult {
   services: BookingService[];
   total_price: number;
   status: BookingStatus;
+  paylink_url?: string | null;
 }
 
 export interface BookingCreateResponse {
