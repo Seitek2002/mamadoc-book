@@ -11,7 +11,7 @@ import {
   SuccessModal,
   PaymentModal,
 } from '@/features';
-import type { ApiDoctorDetail, ApiCalendarDay, ApiPhoneCountry, ApiReview } from '@/shared/mock';
+import type { ApiDoctorDetail, ApiCalendarDay, ApiTimeSlot, ApiPhoneCountry, ApiReview } from '@/shared/mock';
 import { ReviewsBlock } from './ReviewsBlock';
 import {
   sendOtp,
@@ -98,7 +98,7 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
 
-  const [filteredTimes, setFilteredTimes] = useState<string[] | null>(null);
+  const [filteredTimes, setFilteredTimes] = useState<ApiTimeSlot[] | null>(null);
   const [filteredServices, setFilteredServices] = useState<ApiService[] | null>(null);
   const [isTimesLoading, setIsTimesLoading] = useState(false);
   const [isServicesLoading, setIsServicesLoading] = useState(false);
@@ -173,7 +173,7 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     try {
       const res = await getProfessionalAvailableTimes(id, { date: selectedDate, service_ids: serviceIds });
       setFilteredTimes(res.times);
-      if (selectedTime && !res.times.includes(selectedTime)) {
+      if (selectedTime && !res.times.some((t) => t.time === selectedTime && !t.busy)) {
         setSelectedTime('');
         setCurrentStep(2);
       }

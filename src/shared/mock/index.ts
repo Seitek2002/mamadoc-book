@@ -91,6 +91,11 @@ export interface ApiCalendarDay {
   times: string[];
 }
 
+export interface ApiTimeSlot {
+  time: string;
+  busy: boolean;
+}
+
 export interface ApiDoctorDetail {
   id: number;
   full_name: string;

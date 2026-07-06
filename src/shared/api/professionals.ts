@@ -5,6 +5,7 @@ import type {
   ApiDoctorPreview,
   ApiDoctorDetail,
   ApiCalendarDay,
+  ApiTimeSlot,
   ApiReview,
   ApiService,
 } from '@/shared/mock';
@@ -39,7 +40,8 @@ export function getProfessionals(params?: {
 export interface AvailableTimesResponse {
   date: string;
   duration_min: number;
-  times: string[];
+  slot_duration_min: number;
+  times: ApiTimeSlot[];
 }
 
 export function getProfessionalAvailableTimes(

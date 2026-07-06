@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import type { ApiCalendarDay } from '@/shared/mock';
+import type { ApiCalendarDay, ApiTimeSlot } from '@/shared/mock';
 import { DoctorsScheduleItem } from '@/shared/ui';
 
 interface DoctorsScheduleProps {
@@ -12,7 +12,7 @@ interface DoctorsScheduleProps {
   onTimeChange: (time: string) => void;
   isDateError?: boolean;
   isTimeError?: boolean;
-  overrideTimes?: string[] | null;
+  overrideTimes?: ApiTimeSlot[] | null;
   isTimesLoading?: boolean;
   showSection?: 'date' | 'time' | 'all';
 }
@@ -31,7 +31,11 @@ export const DoctorsSchedule = ({
 }: DoctorsScheduleProps) => {
 
   const selectedDay = calendar.find((day) => day.date === selectedDate);
-  const currentSlots = overrideTimes ?? selectedDay?.times ?? [];
+  // С выбранными услугами сервер отдаёт полную сетку дня с флагом busy —
+  // занятые слоты показываем серыми и некликабельными. Без услуг календарь
+  // содержит только свободные слоты.
+  const currentSlots: ApiTimeSlot[] =
+    overrideTimes ?? (selectedDay?.times ?? []).map((time) => ({ time, busy: false }));
 
   return (
     <div className='bg-white rounded-2xl py-5 h-full w-full flex flex-col gap-2'>
@@ -80,18 +84,21 @@ export const DoctorsSchedule = ({
                 <div key={i} className='w-18.75 h-6.5 rounded-full bg-gray-200 animate-pulse' />
               ))
             ) : currentSlots.length > 0 ? (
-              currentSlots.map((time, idx) => (
+              currentSlots.map((slot, idx) => (
                 <div
-                  key={`${selectedDate}-${time}-${idx}`}
-                  onClick={() => onTimeChange(time)}
+                  key={`${selectedDate}-${slot.time}-${idx}`}
+                  onClick={slot.busy ? undefined : () => onTimeChange(slot.time)}
+                  aria-disabled={slot.busy}
                   className={clsx(
-                    'w-18.75 h-6.5 flex justify-center items-center rounded-full cursor-pointer transition-all border',
-                    selectedTime === time
-                      ? 'bg-[#5CB85C] border-[#5CB85C] text-white'
-                      : 'bg-white border-[#B3B3B3] text-[#333] hover:border-[#5CB85C] hover:text-[#5CB85C]',
+                    'w-18.75 h-6.5 flex justify-center items-center rounded-full transition-all border',
+                    slot.busy
+                      ? 'bg-[#F6F6F6] border-[#E7E7EE] text-[#B3B3B3] cursor-not-allowed'
+                      : selectedTime === slot.time
+                      ? 'bg-[#5CB85C] border-[#5CB85C] text-white cursor-pointer'
+                      : 'bg-white border-[#B3B3B3] text-[#333] hover:border-[#5CB85C] hover:text-[#5CB85C] cursor-pointer',
                   )}
                 >
-                  <span className='text-xs font-semibold'>{time}</span>
+                  <span className='text-xs font-semibold'>{slot.time}</span>
                 </div>
               ))
             ) : (
