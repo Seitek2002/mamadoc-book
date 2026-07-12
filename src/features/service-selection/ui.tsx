@@ -41,6 +41,10 @@ export function ServicesSelection({
               <div className='h-4 bg-gray-200 rounded w-12' />
             </div>
           ))
+        ) : services.length === 0 ? (
+          <span className='text-gray-400 text-sm px-1'>
+            На выбранное время нет доступных услуг — попробуйте другое время
+          </span>
         ) : services.map((service) => {
           const isSelected = selectedServices.includes(service.id);
           return (
