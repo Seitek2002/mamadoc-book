@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import clsx from 'clsx';
 import { DoctorsDetailsCard } from '@/widgets';
 import {
@@ -21,6 +21,7 @@ import {
   createPaylink,
   setToken,
   getToken,
+  removeToken,
   getProfessionalAvailableTimes,
   getProfessionalAvailableServices,
   type BookingResult,
@@ -121,6 +122,20 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
   const [errors, setErrors] = useState({ date: false, time: false, services: false });
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
+  const [isBookingLoading, setIsBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState('');
+
+  // После ухода на оплату страница остаётся в истории браузера. При возврате
+  // «Назад» из банка браузер восстанавливает её из bfcache со старым состоянием
+  // (включая прошлые выбранные услуги) и устаревшими слотами — перезагружаем.
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) window.location.reload();
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
+
   const handleDateChange = async (date: string) => {
     setSelectedDate(date);
     setSelectedTime('');
@@ -153,6 +168,9 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     try {
       const res = await getProfessionalAvailableServices(id, { date: selectedDate, time });
       setFilteredServices(res.data);
+      // Убираем из выбора услуги, недоступные на новое время, — иначе их id
+      // незаметно уйдут в service_ids при создании брони
+      setSelectedServices((prev) => prev.filter((sid) => res.data.some((s) => s.id === sid)));
     } catch {
       setFilteredServices(null);
     } finally {
@@ -184,7 +202,31 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     }
   };
 
-  const handleBooking = () => {
+  // Ошибки авторизации: токен истёк или невалиден — нужно заново пройти OTP
+  const isAuthError = (e: ApiError) =>
+    e.error === 'not_authenticated' || e.error === 'authentication_failed' || e.error === 'token_not_valid';
+
+  // Обработка платёжных ошибок создания брони. Возвращает true, если ошибка обработана.
+  const handlePaymentErrors = async (e: ApiError, access_token: string): Promise<boolean> => {
+    if (e.error === 'payment_required') {
+      const branchId = Number(e.details?.branch_id);
+      const paylink = await createPaylink(branchId, access_token);
+      setPaymentInfo({ url: paylink.paylink_url, amount: paylink.amount });
+      setPaymentError('');
+      setIsOtpModalOpen(false);
+      setIsPaymentModalOpen(true);
+      return true;
+    }
+    if (e.error === 'payment_not_paid') {
+      setPaymentError('Платёж ещё не подтверждён. Подождите немного и попробуйте снова.');
+      setIsOtpModalOpen(false);
+      setIsPaymentModalOpen(true);
+      return true;
+    }
+    return false;
+  };
+
+  const handleBooking = async () => {
     const isDateInvalid = !selectedDate;
     const isTimeInvalid = !selectedTime;
     const isServicesInvalid = selectedServices.length === 0;
@@ -195,7 +237,35 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     if (isTimeInvalid) { setCurrentStep(2); return; }
     if (isServicesInvalid) { setCurrentStep(3); return; }
 
-    setIsPhoneModalOpen(true);
+    setBookingError('');
+
+    // Если токен сохранён с прошлой авторизации — бронируем сразу, без телефона и OTP
+    const token = getToken();
+    if (!token) {
+      setIsPhoneModalOpen(true);
+      return;
+    }
+
+    setIsBookingLoading(true);
+    try {
+      await submitBooking(token);
+    } catch (err) {
+      const e = err as ApiError;
+      if (isAuthError(e)) {
+        // Токен истёк — чистим его и запрашиваем OTP заново
+        removeToken();
+        setIsPhoneModalOpen(true);
+        return;
+      }
+      try {
+        if (await handlePaymentErrors(e, token)) return;
+      } catch {
+        // не удалось создать платёжную ссылку — покажем исходную ошибку
+      }
+      setBookingError(e.message ?? 'Ошибка записи');
+    } finally {
+      setIsBookingLoading(false);
+    }
   };
 
   const handlePhoneSubmit = async (phoneNumber: string) => {
@@ -267,21 +337,7 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
         await submitBooking(access_token);
       } catch (err) {
         const e = err as ApiError;
-        if (e.error === 'payment_required') {
-          const branchId = Number(e.details?.branch_id);
-          const paylink = await createPaylink(branchId, access_token);
-          setPaymentInfo({ url: paylink.paylink_url, amount: paylink.amount });
-          setPaymentError('');
-          setIsOtpModalOpen(false);
-          setIsPaymentModalOpen(true);
-          return;
-        }
-        if (e.error === 'payment_not_paid') {
-          setPaymentError('Платёж ещё не подтверждён. Подождите немного и попробуйте снова.');
-          setIsOtpModalOpen(false);
-          setIsPaymentModalOpen(true);
-          return;
-        }
+        if (await handlePaymentErrors(e, access_token)) return;
         throw err;
       }
     } catch (err) {
@@ -411,11 +467,15 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
                 )}
               </div>
             )}
+            {bookingError && (
+              <p className='text-sm text-red-500 text-center'>{bookingError}</p>
+            )}
             <button
               onClick={handleBooking}
-              className='bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-77 h-10.25 text-base rounded-full shadow-md active:scale-95 transition-all'
+              disabled={isBookingLoading}
+              className='bg-[#007BFF] hover:bg-[#0069D9] disabled:opacity-60 font-medium text-white w-77 h-10.25 text-base rounded-full shadow-md active:scale-95 transition-all'
             >
-              Записаться
+              {isBookingLoading ? 'Записываем...' : 'Записаться'}
             </button>
           </div>
         </div>
@@ -432,11 +492,17 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
         {selectedDate && selectedTime ? `${selectedDate}, ${selectedTime}` : 'Выберите время'}
       </div>
 
+      {bookingError && (
+        <p className='fixed lg:hidden left-1/2 -translate-x-1/2 bottom-24 text-xs text-red-500 bg-white rounded-full px-4 py-1.5 shadow-md z-40 whitespace-nowrap'>
+          {bookingError}
+        </p>
+      )}
       <button
         onClick={handleBooking}
-        className='fixed lg:hidden left-1/2 -translate-x-1/2 bottom-4 text-sm bg-[#007BFF] hover:bg-[#0069D9] font-medium text-white w-50.75 md:w-[80%] max-w-200 py-2.5 rounded-full shadow-xl active:scale-95 transition-all z-40'
+        disabled={isBookingLoading}
+        className='fixed lg:hidden left-1/2 -translate-x-1/2 bottom-4 text-sm bg-[#007BFF] hover:bg-[#0069D9] disabled:opacity-60 font-medium text-white w-50.75 md:w-[80%] max-w-200 py-2.5 rounded-full shadow-xl active:scale-95 transition-all z-40'
       >
-        Записаться
+        {isBookingLoading ? 'Записываем...' : 'Записаться'}
       </button>
 
       <PhoneModal
