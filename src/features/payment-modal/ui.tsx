@@ -8,6 +8,8 @@ interface PaymentModalProps {
   onPaid: () => void;
   paylinkUrl: string;
   amount: number;
+  /** Полная стоимость брони — передаётся при депозитной модели оплаты */
+  totalPrice?: number;
   error?: string;
   isLoading?: boolean;
 }
@@ -18,9 +20,11 @@ export function PaymentModal({
   onPaid,
   paylinkUrl,
   amount,
+  totalPrice,
   error,
   isLoading,
 }: PaymentModalProps) {
+  const isDeposit = totalPrice != null && totalPrice > amount;
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${
@@ -56,6 +60,13 @@ export function PaymentModal({
               </>
             )}
           </p>
+          {isDeposit && (
+            <p className='text-xs text-[#9E9E9E] mt-2'>
+              Оставшаяся сумма —{' '}
+              {(totalPrice - amount).toLocaleString('ru-RU')} сом — оплачивается
+              на месте после приёма
+            </p>
+          )}
         </div>
 
         {error && (

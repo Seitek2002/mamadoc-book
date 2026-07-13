@@ -24,6 +24,7 @@ import {
   removeToken,
   getProfessionalAvailableTimes,
   getProfessionalAvailableServices,
+  getBranchById,
   type BookingResult,
   type ApiError,
 } from '@/shared/api';
@@ -108,7 +109,7 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [paymentInfo, setPaymentInfo] = useState<{ url: string; amount: number } | null>(null);
+  const [paymentInfo, setPaymentInfo] = useState<{ url: string; amount: number; total?: number } | null>(null);
   const [paymentError, setPaymentError] = useState('');
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [currentPhone, setCurrentPhone] = useState('');
@@ -308,6 +309,28 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     // Бронь требует предоплаты — сервер вернул ссылку на оплату.
     // После оплаты банк вернёт пользователя на /bookings.
     if (result.data.paylink_url) {
+      // Мастер выбирает модель оплаты: фиксированный депозит или полная
+      // стоимость. Сумма пейлинка задаётся настройкой филиала — если она
+      // меньше стоимости брони, это депозит, и пользователя надо предупредить.
+      if (result.data.branch_id != null) {
+        try {
+          const branch = await getBranchById(result.data.branch_id);
+          const deposit = branch.data.paylink_amount;
+          if (deposit != null && deposit > 0 && deposit < result.data.total_price) {
+            setPaymentInfo({
+              url: result.data.paylink_url,
+              amount: deposit,
+              total: result.data.total_price,
+            });
+            setPaymentError('');
+            setIsOtpModalOpen(false);
+            setIsPaymentModalOpen(true);
+            return;
+          }
+        } catch {
+          // не удалось определить модель — просто уходим на оплату
+        }
+      }
       window.location.href = result.data.paylink_url;
       return;
     }
@@ -530,6 +553,7 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
         onPaid={handlePaymentConfirm}
         paylinkUrl={paymentInfo?.url ?? ''}
         amount={paymentInfo?.amount ?? 0}
+        totalPrice={paymentInfo?.total}
         error={paymentError}
         isLoading={isPaymentLoading}
       />

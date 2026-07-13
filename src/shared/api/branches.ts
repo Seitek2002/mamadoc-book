@@ -5,6 +5,10 @@ export function getBranches() {
   return apiGet<ApiResponse<ApiBranch[]>>('/branches/');
 }
 
+export function getBranchById(branchId: number | string) {
+  return apiGet<ApiResponse<ApiBranch>>(`/branches/${branchId}/`);
+}
+
 export function getBranchProfessionals(
   branchId: number | string,
   params?: {
