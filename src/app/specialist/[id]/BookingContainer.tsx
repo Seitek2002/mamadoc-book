@@ -137,6 +137,34 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     return () => window.removeEventListener('pageshow', onPageShow);
   }, []);
 
+  // Пока услуги не выбраны, сетку времени запрашиваем по самой короткой
+  // услуге врача: сервер отдаёт полную сетку дня с флагом busy, и занятые
+  // слоты видны серыми ещё до выбора услуг
+  const fallbackServiceIds = doctor.services.length
+    ? [doctor.services.reduce((a, b) =>
+        (b.duration_min ?? Infinity) < (a.duration_min ?? Infinity) ? b : a,
+      ).id]
+    : [];
+
+  const fetchTimes = async (date: string, serviceIds: number[]): Promise<ApiTimeSlot[] | null> => {
+    const ids = serviceIds.length > 0 ? serviceIds : fallbackServiceIds;
+    if (ids.length === 0) {
+      setFilteredTimes(null);
+      return null;
+    }
+    setIsTimesLoading(true);
+    try {
+      const res = await getProfessionalAvailableTimes(id, { date, service_ids: ids });
+      setFilteredTimes(res.times);
+      return res.times;
+    } catch {
+      setFilteredTimes(null);
+      return null;
+    } finally {
+      setIsTimesLoading(false);
+    }
+  };
+
   const handleDateChange = async (date: string) => {
     setSelectedDate(date);
     setSelectedTime('');
@@ -144,19 +172,7 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     setErrors((prev) => ({ ...prev, date: false }));
     setCurrentStep(2);
 
-    if (selectedServices.length === 0) {
-      setFilteredTimes(null);
-      return;
-    }
-    setIsTimesLoading(true);
-    try {
-      const res = await getProfessionalAvailableTimes(id, { date, service_ids: selectedServices });
-      setFilteredTimes(res.times);
-    } catch {
-      setFilteredTimes(null);
-    } finally {
-      setIsTimesLoading(false);
-    }
+    await fetchTimes(date, selectedServices);
   };
 
   const handleTimeChange = async (time: string) => {
@@ -183,23 +199,11 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     setSelectedServices(serviceIds);
     setErrors((prev) => ({ ...prev, services: false }));
 
-    if (serviceIds.length === 0) {
-      setFilteredTimes(null);
-      return;
-    }
     if (!selectedDate) return;
-    setIsTimesLoading(true);
-    try {
-      const res = await getProfessionalAvailableTimes(id, { date: selectedDate, service_ids: serviceIds });
-      setFilteredTimes(res.times);
-      if (selectedTime && !res.times.some((t) => t.time === selectedTime && !t.busy)) {
-        setSelectedTime('');
-        setCurrentStep(2);
-      }
-    } catch {
-      setFilteredTimes(null);
-    } finally {
-      setIsTimesLoading(false);
+    const times = await fetchTimes(selectedDate, serviceIds);
+    if (times && selectedTime && !times.some((t) => t.time === selectedTime && !t.busy)) {
+      setSelectedTime('');
+      setCurrentStep(2);
     }
   };
 
