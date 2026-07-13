@@ -51,6 +51,12 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, coun
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+
+  // Автофокус на поле номера при открытии
+  useEffect(() => {
+    if (isOpen) phoneInputRef.current?.focus();
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -164,7 +170,10 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, coun
           </span>
 
           <input
+            ref={phoneInputRef}
             type='tel'
+            name='phone'
+            autoComplete='tel'
             value={phoneNumber}
             onChange={handlePhoneChange}
             placeholder='000 000 000'

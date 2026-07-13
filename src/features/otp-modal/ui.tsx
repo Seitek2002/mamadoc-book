@@ -51,14 +51,41 @@ export function OTPModal({
     return () => clearInterval(timer);
   }, [isOpen]);
 
+  // Автофокус на первую ячейку при открытии
+  useEffect(() => {
+    if (isOpen) inputRefs.current[0]?.focus();
+  }, [isOpen]);
+
   const handleChange = (index: number, value: string) => {
-    if (isNaN(Number(value))) return;
+    const digits = value.replace(/\D/g, '');
+
+    if (digits.length === 0) {
+      const newOtp = [...otp];
+      newOtp[index] = '';
+      setOtp(newOtp);
+      return;
+    }
+
+    // Несколько цифр разом — автоподставка кода из SMS (iOS вставляет весь код
+    // в одну ячейку) или быстрый ввод. Распределяем по ячейкам.
+    if (digits.length > 1) {
+      const start = digits.length >= 6 ? 0 : index;
+      const newOtp = digits.length >= 6 ? Array(6).fill('') : [...otp];
+      let i = start;
+      for (const d of digits) {
+        if (i > 5) break;
+        newOtp[i++] = d;
+      }
+      setOtp(newOtp);
+      inputRefs.current[Math.min(i, 5)]?.focus();
+      return;
+    }
 
     const newOtp = [...otp];
-    newOtp[index] = value.substring(value.length - 1);
+    newOtp[index] = digits;
     setOtp(newOtp);
 
-    if (value && index < 5) {
+    if (index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -166,7 +193,7 @@ export function OTPModal({
               }}
               type='text'
               inputMode='numeric'
-              maxLength={1}
+              autoComplete='one-time-code'
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
