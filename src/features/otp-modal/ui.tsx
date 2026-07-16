@@ -32,6 +32,8 @@ export function OTPModal({
   const [wasOpen, setWasOpen] = useState(isOpen);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  // Последний авто-отправленный код — защита от повторной отправки того же кода
+  const autoSubmittedRef = useRef('');
 
   // Сброс состояния при открытии
   if (isOpen !== wasOpen) {
@@ -39,6 +41,7 @@ export function OTPModal({
     if (isOpen) {
       setTimeLeft(60);
       setOtp(Array(6).fill(''));
+      autoSubmittedRef.current = '';
     }
   }
 
@@ -55,6 +58,21 @@ export function OTPModal({
   useEffect(() => {
     if (isOpen) inputRefs.current[0]?.focus();
   }, [isOpen]);
+
+  // Авто-отправка, как только введены все 6 цифр
+  useEffect(() => {
+    const code = otp.join('');
+    if (
+      isOpen &&
+      code.length === 6 &&
+      !isLoading &&
+      autoSubmittedRef.current !== code
+    ) {
+      autoSubmittedRef.current = code;
+      onSubmit(code);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otp, isOpen, isLoading]);
 
   const handleChange = (index: number, value: string) => {
     const digits = value.replace(/\D/g, '');
@@ -211,8 +229,19 @@ export function OTPModal({
         <button
           onClick={handleSubmit}
           disabled={otp.join('').length !== 6 || isLoading}
-          className='w-full md:w-77 h-9.5 md:h-10.25 bg-accent disabled:opacity-50 hover:bg-[#0070d1] transition-colors text-white text-[14px] md:text-[16px] font-medium rounded-[10px] mb-4'
+          className='w-full md:w-77 h-9.5 md:h-10.25 bg-accent disabled:opacity-50 hover:bg-[#0070d1] transition-colors text-white text-[14px] md:text-[16px] font-medium rounded-[10px] mb-4 flex items-center justify-center gap-2'
         >
+          {isLoading && (
+            <svg
+              className='size-4 animate-spin'
+              viewBox='0 0 24 24'
+              fill='none'
+              xmlns='http://www.w3.org/2000/svg'
+            >
+              <circle cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' className='opacity-25' />
+              <path d='M12 2a10 10 0 0 1 10 10' stroke='currentColor' strokeWidth='4' strokeLinecap='round' />
+            </svg>
+          )}
           {isLoading ? 'Проверка...' : 'Продолжить'}
         </button>
 
