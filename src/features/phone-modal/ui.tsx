@@ -37,7 +37,7 @@ function mapApiCountries(apiCountries: ApiPhoneCountry[]): Country[] {
 interface PhoneModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onContinue: (phoneNumber: string) => void;
+  onContinue: (phoneNumber: string, fullName: string) => void;
   error?: string;
   isLoading?: boolean;
   countries?: ApiPhoneCountry[];
@@ -49,13 +49,20 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, coun
     resolvedCountries.find((c) => c.code === '+996') ?? resolvedCountries[0]
   );
   const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [fullName, setFullName] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const phoneInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
-  // Автофокус на поле номера при открытии
+  // Автофокус при открытии: на ФИО, если оно ещё не заполнено, иначе на номер
   useEffect(() => {
-    if (isOpen) phoneInputRef.current?.focus();
+    if (!isOpen) return;
+    if (localStorage.getItem('saved_name')) {
+      phoneInputRef.current?.focus();
+    } else {
+      nameInputRef.current?.focus();
+    }
   }, [isOpen]);
 
   useEffect(() => {
@@ -68,6 +75,8 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, coun
         setPhoneNumber(savedPhone.slice(matched.code.length));
       }
     }
+    const savedName = localStorage.getItem('saved_name');
+    if (savedName) setFullName(savedName);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
@@ -95,8 +104,8 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, coun
   };
 
   const handleContinue = () => {
-    if (phoneNumber.length > 0) {
-      onContinue(selectedCountry.code + phoneNumber);
+    if (phoneNumber.length > 0 && fullName.trim().length > 0) {
+      onContinue(selectedCountry.code + phoneNumber, fullName.trim());
     }
   };
 
@@ -116,8 +125,21 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, coun
         onClick={(e) => e.stopPropagation()}
       >
         <p className='text-sm text-center text-[#333] mb-4'>
-          Введите номер телефона, чтобы продолжить запись
+          Введите ФИО и номер телефона, чтобы продолжить запись
         </p>
+
+        <div className='border border-gray-200 rounded-lg p-3 w-full'>
+          <input
+            ref={nameInputRef}
+            type='text'
+            name='name'
+            autoComplete='name'
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder='ФИО'
+            className='w-full text-base text-[#333] placeholder:text-gray-300 focus:outline-none'
+          />
+        </div>
 
         <div className='border border-gray-200 rounded-lg p-3 flex items-center gap-2 w-full'>
           <div
@@ -187,7 +209,7 @@ export function PhoneModal({ isOpen, onClose, onContinue, error, isLoading, coun
 
         <button
           onClick={handleContinue}
-          disabled={isLoading}
+          disabled={isLoading || phoneNumber.length === 0 || fullName.trim().length === 0}
           className='w-full bg-[#007BFF] hover:bg-[#0069D9] disabled:opacity-60 transition-colors text-white text-base font-semibold py-3.5 rounded-full mt-2'
         >
           {isLoading ? 'Отправка...' : 'Продолжить'}

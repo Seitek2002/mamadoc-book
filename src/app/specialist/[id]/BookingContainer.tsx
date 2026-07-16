@@ -113,6 +113,7 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
   const [paymentError, setPaymentError] = useState('');
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [currentPhone, setCurrentPhone] = useState('');
+  const [currentName, setCurrentName] = useState('');
   const [bookingResult, setBookingResult] = useState<BookingResult | null>(null);
 
   const [phoneError, setPhoneError] = useState('');
@@ -273,12 +274,13 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     }
   };
 
-  const handlePhoneSubmit = async (phoneNumber: string) => {
+  const handlePhoneSubmit = async (phoneNumber: string, fullName: string) => {
     setPhoneError('');
     setIsPhoneLoading(true);
     try {
-      await sendOtp({ phone: phoneNumber });
+      await sendOtp({ phone: phoneNumber, full_name: fullName });
       setCurrentPhone(phoneNumber);
+      setCurrentName(fullName);
       setIsPhoneModalOpen(false);
       setIsOtpModalOpen(true);
     } catch (err) {
@@ -292,7 +294,7 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
   const handleResend = async () => {
     setOtpError('');
     try {
-      await sendOtp({ phone: currentPhone });
+      await sendOtp({ phone: currentPhone, full_name: currentName });
     } catch (err) {
       const e = err as ApiError;
       setOtpError(e.message ?? 'Ошибка повторной отправки');
@@ -354,11 +356,15 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
       if (!verifyResult.needs_profile) {
         access_token = verifyResult.access_token!;
       } else {
-        const profileRes = await completeProfile({ phone: currentPhone }, verifyResult.code!);
+        const profileRes = await completeProfile(
+          { phone: currentPhone, full_name: currentName },
+          verifyResult.code!,
+        );
         access_token = profileRes.access_token;
       }
       setToken(access_token);
       localStorage.setItem('saved_phone', currentPhone);
+      localStorage.setItem('saved_name', currentName);
 
       try {
         await submitBooking(access_token);

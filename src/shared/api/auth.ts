@@ -2,6 +2,7 @@ import { apiPost } from './client';
 
 export interface SendOtpRequest {
   phone: string;
+  full_name: string;
 }
 
 export interface SendOtpResponse {

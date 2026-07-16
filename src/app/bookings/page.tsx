@@ -125,6 +125,7 @@ export default function BookingsPage() {
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [currentPhone, setCurrentPhone] = useState('');
+  const [currentName, setCurrentName] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [otpError, setOtpError] = useState('');
   const [isPhoneLoading, setIsPhoneLoading] = useState(false);
@@ -159,12 +160,13 @@ export default function BookingsPage() {
     return () => document.removeEventListener('visibilitychange', refresh);
   }, []);
 
-  const handlePhoneSubmit = async (phone: string) => {
+  const handlePhoneSubmit = async (phone: string, fullName: string) => {
     setPhoneError('');
     setIsPhoneLoading(true);
     try {
-      await sendOtp({ phone });
+      await sendOtp({ phone, full_name: fullName });
       setCurrentPhone(phone);
+      setCurrentName(fullName);
       setIsPhoneModalOpen(false);
       setIsOtpModalOpen(true);
     } catch (err) {
@@ -177,7 +179,7 @@ export default function BookingsPage() {
   const handleResend = async () => {
     setOtpError('');
     try {
-      await sendOtp({ phone: currentPhone });
+      await sendOtp({ phone: currentPhone, full_name: currentName });
     } catch (err) {
       setOtpError((err as ApiError).message ?? 'Ошибка повторной отправки');
     }
@@ -192,11 +194,16 @@ export default function BookingsPage() {
       if (!verifyResult.needs_profile) {
         access_token = verifyResult.access_token!;
       } else {
-        const profileRes = await completeProfile({ phone: currentPhone }, verifyResult.code!);
+        const profileRes = await completeProfile(
+          { phone: currentPhone, full_name: currentName },
+          verifyResult.code!,
+        );
         access_token = profileRes.access_token;
       }
       setToken(access_token);
       setTokenState(access_token);
+      localStorage.setItem('saved_phone', currentPhone);
+      localStorage.setItem('saved_name', currentName);
       setIsOtpModalOpen(false);
       await fetchBookings(access_token);
     } catch (err) {
