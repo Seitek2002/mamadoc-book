@@ -7,83 +7,94 @@ type Props = {
   onClick: () => void;
 };
 
+const getSlotsLabel = (count: number) => {
+  if (count === 0) return 'нет окон';
+  if (count === 1) return '1 окно';
+  if (count > 1 && count < 5) return `${count} окна`;
+  return `${count} окон`;
+};
+
 export const DoctorsScheduleItem = ({ data, isActive, onClick }: Props) => {
-  const isToday = data.label === 'Сегодня';
-  const isTomorrow = data.label === 'Завтра';
-  const isFarDate = !isToday && !isTomorrow;
+  const isSpecial = data.label === 'Сегодня' || data.label === 'Завтра';
 
   const dateObj = new Date(data.date);
-  const dayOfWeek = dateObj
+  const weekday = dateObj
     .toLocaleDateString('ru-RU', { weekday: 'short' })
     .replace('.', '');
-  const dayMonth = dateObj
-    .toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+  const dayNum = dateObj.getDate();
+  const month = dateObj
+    .toLocaleDateString('ru-RU', { month: 'short' })
     .replace('.', '');
 
-  const getSlotsLabel = (count: number) => {
-    if (count === 0) return 'Нет окон';
-    if (count === 1) return '1 окно';
-    if (count > 1 && count < 5) return `${count} окна`;
-    return `${count} окон`;
-  };
+  const topLabel = isSpecial ? data.label : weekday;
 
   return (
-    <div
+    <button
+      type='button'
       onClick={data.is_available ? onClick : undefined}
+      disabled={!data.is_available}
       className={clsx(
-        'flex flex-col border relative rounded-[10px] w-auto h-15 lg:w-auto lg:h-20 font-semibold p-1 md:p-2 transition-all cursor-pointer',
-        !data.is_available && 'opacity-30 grayscale-[0.5] cursor-not-allowed',
-        isActive ? 'bg-mint-100 border-success' : 'border-sky bg-[#ECF1FB]',
+        'flex flex-col items-center justify-between shrink-0 snap-start w-16.5 md:w-auto h-22 rounded-xl border px-1 py-2 transition-all select-none',
+        isActive
+          ? 'bg-[#007BFF] border-[#007BFF] shadow-[0_6px_16px_rgba(0,123,255,0.28)] cursor-pointer'
+          : data.is_available
+          ? 'bg-white border-[#E7E7EE] hover:border-[#8FC0FF] hover:shadow-sm cursor-pointer'
+          : 'bg-[#FAFAFB] border-[#F0F1F4] cursor-not-allowed',
       )}
     >
-      {!isFarDate && (
-        <div
-          className={clsx(
-            'absolute text-[8px] px-1.5 border bg-white rounded-full -top-1.5 left-1.5 whitespace-nowrap transition-all',
-            isActive
-              ? 'text-success border-success'
-              : 'text-primary border-primary',
-          )}
-        >
-          {dayMonth}
-        </div>
-      )}
-
       <span
         className={clsx(
-          'text-[9px] xl:text-sm flex justify-between items-center capitalize transition-all text-nowrap',
-          isActive ? 'text-success' : 'text-primary',
+          'text-[9px] font-semibold uppercase tracking-wide leading-none whitespace-nowrap',
+          isActive
+            ? 'text-white/85'
+            : !data.is_available
+            ? 'text-[#C6CAD2]'
+            : isSpecial
+            ? 'text-[#007BFF]'
+            : 'text-[#98A2B3]',
         )}
       >
-        {data.label}
-        {isFarDate && (
-          <div
-            className={clsx(
-              'bg-white size-3.5 shrink-0 text-[7px] border rounded-full flex justify-center items-center uppercase transition-all',
-              isActive
-                ? 'text-success border-success'
-                : 'text-primary border-primary',
-            )}
-          >
-            {dayOfWeek}
-          </div>
-        )}
+        {topLabel}
       </span>
 
       <span
         className={clsx(
-          'text-[8px] xl:text-xs text-center text-nowrap font-semibold text-white py-0.5 rounded-full w-full mt-auto transition-all',
-          isActive ? 'bg-success' : 'bg-primary',
+          'text-xl font-bold leading-none tabular-nums',
+          isActive
+            ? 'text-white'
+            : data.is_available
+            ? 'text-[#312E2E]'
+            : 'text-[#C6CAD2]',
         )}
       >
-        {/* <span className="md:hidden">
-          {data.slots_count}
-        </span> */}
-        {/* <span className="hidden md:inline">
-          {getSlotsLabel(data.slots_count)}
-        </span> */}
+        {dayNum}
+      </span>
+
+      <span
+        className={clsx(
+          'text-[9px] font-medium leading-none',
+          isActive
+            ? 'text-white/85'
+            : data.is_available
+            ? 'text-[#7A7878]'
+            : 'text-[#C6CAD2]',
+        )}
+      >
+        {month}
+      </span>
+
+      <span
+        className={clsx(
+          'text-[8px] font-semibold leading-none px-1.5 py-1 rounded-full whitespace-nowrap',
+          isActive
+            ? 'bg-white/20 text-white'
+            : data.is_available
+            ? 'bg-[#E9F9EE] text-[#1FA84A]'
+            : 'text-[#C6CAD2]',
+        )}
+      >
         {getSlotsLabel(data.slots_count)}
       </span>
-    </div>
+    </button>
   );
 };

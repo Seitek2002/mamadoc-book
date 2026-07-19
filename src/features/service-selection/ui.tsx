@@ -10,6 +10,22 @@ interface ServicesSelectionProps {
   isLoading?: boolean;
 }
 
+const serviceWord = (n: number) => {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return 'услуга';
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'услуги';
+  return 'услуг';
+};
+
+const formatDuration = (min: number) => {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (h === 0) return `${m} мин`;
+  if (m === 0) return `${h} ч`;
+  return `${h} ч ${m} мин`;
+};
+
 export function ServicesSelection({
   services,
   selectedServices,
@@ -24,78 +40,129 @@ export function ServicesSelection({
     onChange(newServices);
   };
 
+  const chosen = services.filter((s) => selectedServices.includes(s.id));
+  const totalPrice = chosen.reduce((sum, s) => sum + s.price, 0);
+  const totalDuration = chosen.every((s) => typeof s.duration_min === 'number')
+    ? chosen.reduce((sum, s) => sum + (s.duration_min ?? 0), 0)
+    : null;
+
   return (
-    <div className='bg-white rounded-2xl py-5 px-4 shadow-sm'>
-      <div className='grid grid-cols-[32px_1fr_80px] items-center gap-3 mb-4 px-1 text-xl font-medium text-[#333]'>
-        <span>Услуги</span>
-        <div />
-        <span className=''>Цены</span>
+    <div className='bg-white rounded-2xl p-4 md:p-5 shadow-sm'>
+      <div className='flex items-baseline justify-between mb-2'>
+        <span className='text-[15px] font-semibold text-[#312E2E]'>
+          Выберите услуги
+        </span>
+        {!isLoading && services.length > 0 && (
+          <span className='text-[11px] text-[#98A2B3] font-medium'>
+            {services.length} {serviceWord(services.length)}
+          </span>
+        )}
       </div>
 
-      <div className='flex flex-col gap-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar'>
+      <div className='flex flex-col max-h-80 overflow-y-auto pr-2 custom-scrollbar divide-y divide-[#F0F1F4]'>
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className='grid grid-cols-[32px_1fr_70px] items-center gap-3 px-1 animate-pulse'>
-              <div className='size-6 rounded-sm bg-gray-200' />
-              <div className='h-4 bg-gray-200 rounded w-3/4' />
-              <div className='h-4 bg-gray-200 rounded w-12' />
+            <div key={i} className='flex items-start gap-3 py-3.5 px-1 animate-pulse'>
+              <div className='size-5.5 rounded-md bg-gray-200 shrink-0' />
+              <div className='flex-1 flex flex-col gap-1.5'>
+                <div className='h-4 bg-gray-200 rounded w-2/3' />
+                <div className='h-3 bg-gray-100 rounded w-1/2' />
+              </div>
+              <div className='h-4 bg-gray-200 rounded w-14' />
             </div>
           ))
         ) : services.length === 0 ? (
-          <span className='text-gray-400 text-sm px-1'>
-            На выбранное время нет доступных услуг — попробуйте другое время
-          </span>
-        ) : services.map((service) => {
-          const isSelected = selectedServices.includes(service.id);
-          return (
-            <button
-              key={service.id}
-              onClick={() => toggleService(service.id)}
-              className='grid grid-cols-[32px_1fr_70px] lg:grid-cols-[32px_1fr_60px] items-start gap-3 px-1 text-left hover:bg-gray-50 transition-colors rounded-lg py-1'
-            >
-              <div
+          <div className='flex flex-col items-center gap-2 py-8 text-center'>
+            <svg width='36' height='36' viewBox='0 0 24 24' fill='none' stroke='#C6CAD2' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'>
+              <path d='M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z' />
+              <line x1='3' y1='6' x2='21' y2='6' />
+              <path d='M16 10a4 4 0 0 1-8 0' />
+            </svg>
+            <span className='text-[#98A2B3] text-sm'>
+              На выбранное время нет доступных услуг — попробуйте другое время
+            </span>
+          </div>
+        ) : (
+          services.map((service) => {
+            const isSelected = selectedServices.includes(service.id);
+            return (
+              <button
+                key={service.id}
+                type='button'
+                onClick={() => toggleService(service.id)}
                 className={clsx(
-                  'size-6 rounded-sm border-2 flex justify-center items-center transition-colors mt-0.5',
-                  isSelected
-                    ? 'bg-[#5CB85C] border-[#5CB85C]'
-                    : 'border-gray-300',
+                  'flex items-start gap-3 py-3.5 px-2 -mx-1 text-left transition-colors rounded-lg',
+                  isSelected ? 'bg-[#F4FAF5]' : 'hover:bg-[#F8FAFC]',
                 )}
               >
-                {isSelected && (
-                  <svg
-                    width='12'
-                    height='10'
-                    viewBox='0 0 12 10'
-                    fill='none'
-                    xmlns='http://www.w3.org/2000/svg'
-                  >
-                    <path
-                      d='M1 5.2L4.2 8.4L10.6 2'
-                      stroke='white'
-                      strokeWidth='2'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    />
-                  </svg>
-                )}
-              </div>
-              <div className='flex flex-col gap-0.5'>
-                <span className='text-[12px] lg:text-[14px] text-[#333] font-medium leading-tight'>
-                  {service.name}
+                <span
+                  className={clsx(
+                    'size-5.5 shrink-0 rounded-md border-2 flex justify-center items-center transition-colors mt-px',
+                    isSelected
+                      ? 'bg-[#5CB85C] border-[#5CB85C]'
+                      : 'border-[#CBD2DC] bg-white',
+                  )}
+                >
+                  {isSelected && (
+                    <svg width='11' height='9' viewBox='0 0 12 10' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                      <path
+                        d='M1 5.2L4.2 8.4L10.6 2'
+                        stroke='white'
+                        strokeWidth='2'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                      />
+                    </svg>
+                  )}
                 </span>
-                {service.description && (
-                  <span className='text-[11px] text-[#9E9E9E] leading-snug whitespace-pre-line'>
-                    {service.description}
+
+                <span className='flex-1 min-w-0 flex flex-col gap-0.5'>
+                  <span className='text-[13px] md:text-sm text-[#312E2E] font-semibold leading-snug'>
+                    {service.name}
                   </span>
-                )}
-              </div>
-              <span className='text-[12px] lg:text-[14px] text-[#333] font-medium text-left mt-0.5'>
-                {service.price}
-              </span>
-            </button>
-          );
-        })}
+                  {service.description && (
+                    <span className='text-[11px] md:text-xs text-[#98A2B3] leading-snug whitespace-pre-line'>
+                      {service.description}
+                    </span>
+                  )}
+                  {typeof service.duration_min === 'number' && service.duration_min > 0 && (
+                    <span className='flex items-center gap-1 text-[10px] text-[#B3B8C2] font-medium mt-0.5'>
+                      <svg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
+                        <circle cx='12' cy='12' r='10' />
+                        <polyline points='12 6 12 12 16 14' />
+                      </svg>
+                      {formatDuration(service.duration_min)}
+                    </span>
+                  )}
+                </span>
+
+                <span
+                  className={clsx(
+                    'text-[13px] md:text-sm font-semibold tabular-nums whitespace-nowrap mt-px',
+                    isSelected ? 'text-[#2E9A46]' : 'text-[#312E2E]',
+                  )}
+                >
+                  {service.price.toLocaleString('ru-RU')} с
+                </span>
+              </button>
+            );
+          })
+        )}
       </div>
+
+      {chosen.length > 0 && (
+        <div className='flex items-center justify-between border-t border-[#F0F1F4] mt-1 pt-3'>
+          <span className='text-xs text-[#7A7878] font-medium'>
+            {chosen.length} {serviceWord(chosen.length)}
+            {totalDuration != null && totalDuration > 0 && (
+              <> · {formatDuration(totalDuration)}</>
+            )}
+          </span>
+          <span className='text-[15px] font-bold text-[#007BFF] tabular-nums'>
+            {totalPrice.toLocaleString('ru-RU')} с
+          </span>
+        </div>
+      )}
     </div>
   );
 }
