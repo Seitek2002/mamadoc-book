@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import type { ApiCalendarDay, ApiTimeSlot } from '@/shared/mock';
 import { DoctorsScheduleItem } from '@/shared/ui';
@@ -14,7 +15,9 @@ interface DoctorsScheduleProps {
   isTimeError?: boolean;
   overrideTimes?: ApiTimeSlot[] | null;
   isTimesLoading?: boolean;
-  showSection?: 'date' | 'time' | 'all';
+  onLoadMoreDays?: () => void;
+  isLoadingMoreDays?: boolean;
+  hasMoreDays?: boolean;
 }
 
 const formatDayLong = (iso: string) =>
@@ -30,8 +33,31 @@ export const DoctorsSchedule = ({
   isTimeError,
   overrideTimes,
   isTimesLoading,
-  showSection = 'all',
+  onLoadMoreDays,
+  isLoadingMoreDays,
+  hasMoreDays,
 }: DoctorsScheduleProps) => {
+  const datesScrollRef = useRef<HTMLDivElement>(null);
+  const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
+
+  // Список дат может докручиваться и горизонтально (мобильная лента), и
+  // вертикально (десктопная сетка) — наблюдаем видимость сентинела
+  // относительно самого скролл-контейнера, это работает для обеих осей.
+  useEffect(() => {
+    if (!onLoadMoreDays || !hasMoreDays) return;
+    const root = datesScrollRef.current;
+    const sentinel = loadMoreSentinelRef.current;
+    if (!root || !sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) onLoadMoreDays();
+      },
+      { root, rootMargin: '200px' },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [onLoadMoreDays, hasMoreDays]);
 
   const selectedDay = calendar.find((day) => day.date === selectedDate);
   // С выбранными услугами сервер отдаёт полную сетку дня с флагом busy —
@@ -44,72 +70,87 @@ export const DoctorsSchedule = ({
 
   return (
     <div className='bg-white rounded-2xl p-4 md:p-5 h-full w-full flex flex-col gap-4 shadow-sm'>
-      {showSection !== 'time' && (
-        <div
-          className={clsx(
-            'rounded-xl border-2 transition-all -m-1 p-1',
-            isDateError ? 'border-red-400' : 'border-transparent',
-          )}
-        >
-          <div className='flex items-baseline justify-between mb-3'>
-            <span
-              className={clsx(
-                'text-[15px] font-semibold',
-                isDateError ? 'text-red-500' : 'text-[#312E2E]',
-              )}
-            >
-              Выберите дату
-            </span>
-            <span className='text-[11px] text-[#98A2B3] font-medium'>
-              ближайшие 30 дней
-            </span>
-          </div>
-          <div className='flex gap-2 overflow-x-auto snap-x pb-1.5 custom-scrollbar md:grid md:grid-cols-6 xl:grid-cols-7 md:overflow-x-visible md:overflow-y-auto md:max-h-75 md:pb-0 md:pr-1'>
-            {calendar.map((el) => (
-              <DoctorsScheduleItem
-                key={el.date}
-                data={el}
-                isActive={selectedDate === el.date}
-                onClick={() => {
-                  onDateChange(el.date);
-                  onTimeChange('');
-                }}
-              />
-            ))}
-          </div>
+      <div
+        className={clsx(
+          'rounded-xl border-2 transition-all -m-1 p-1',
+          isDateError ? 'border-red-400' : 'border-transparent',
+        )}
+      >
+        <div className='flex items-baseline justify-between mb-3'>
+          <span
+            className={clsx(
+              'text-[15px] font-semibold',
+              isDateError ? 'text-red-500' : 'text-dark',
+            )}
+          >
+            Выберите дату
+          </span>
+          <span className='text-[11px] text-[#98A2B3] font-medium'>
+            {calendar.length <= 30 ? 'ближайшие 30 дней' : `показано ${calendar.length} дней`}
+          </span>
         </div>
-      )}
+        <div
+          ref={datesScrollRef}
+          className='flex gap-2 overflow-x-auto snap-x pb-1.5 custom-scrollbar md:grid md:grid-cols-6 xl:grid-cols-7 md:overflow-x-visible md:overflow-y-auto md:max-h-75 md:pb-0 md:pr-1'
+        >
+          {calendar.map((el) => (
+            <DoctorsScheduleItem
+              key={el.date}
+              data={el}
+              isActive={selectedDate === el.date}
+              onClick={() => {
+                onDateChange(el.date);
+                onTimeChange('');
+              }}
+            />
+          ))}
+          {hasMoreDays && (
+            <div
+              ref={loadMoreSentinelRef}
+              className='shrink-0 w-1 md:w-auto md:h-1 md:col-span-full'
+              aria-hidden
+            />
+          )}
+          {isLoadingMoreDays && (
+            <div className='shrink-0 w-16.5 md:w-auto h-22 rounded-xl border border-[#F0F1F4] flex items-center justify-center md:col-span-full md:h-10'>
+              <svg className='size-4 animate-spin text-[#98A2B3]' viewBox='0 0 24 24' fill='none'>
+                <circle cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' className='opacity-25' />
+                <path d='M12 2a10 10 0 0 1 10 10' stroke='currentColor' strokeWidth='4' strokeLinecap='round' />
+              </svg>
+            </div>
+          )}
+        </div>
+      </div>
 
-      {showSection !== 'date' && (
+      {/* Время появляется только после выбора даты — до этого показывать нечего */}
+      {selectedDate && (
         <div
           className={clsx(
-            'rounded-xl border-2 transition-all -m-1 p-1',
+            'rounded-xl border-2 transition-all -m-1 p-1 animate-in fade-in slide-in-from-top-2 duration-300',
             isTimeError ? 'border-red-400' : 'border-transparent',
           )}
         >
-          <div className='flex items-baseline justify-between mb-1'>
+          <div className='flex items-baseline justify-between mb-1 border-t border-[#F0F1F4] pt-4'>
             <span
               className={clsx(
                 'text-[15px] font-semibold',
-                isTimeError ? 'text-red-500' : 'text-[#312E2E]',
+                isTimeError ? 'text-red-500' : 'text-dark',
               )}
             >
               Выберите время
             </span>
-            {selectedDate && (
-              <span className='text-[11px] text-[#98A2B3] font-medium'>
-                {formatDayLong(selectedDate)}
-              </span>
-            )}
+            <span className='text-[11px] text-[#98A2B3] font-medium'>
+              {formatDayLong(selectedDate)}
+            </span>
           </div>
 
           {hasBusy && !isTimesLoading && (
             <div className='flex items-center gap-4 mb-3'>
-              <span className='flex items-center gap-1.5 text-[11px] text-[#7A7878]'>
+              <span className='flex items-center gap-1.5 text-[11px] text-gray'>
                 <span className='size-2 rounded-full bg-white border border-[#C9CDD4]' />
                 Свободно
               </span>
-              <span className='flex items-center gap-1.5 text-[11px] text-[#7A7878]'>
+              <span className='flex items-center gap-1.5 text-[11px] text-gray'>
                 <span className='size-2 rounded-full bg-[#E2E4E9]' />
                 Занято
               </span>
@@ -138,7 +179,7 @@ export const DoctorsSchedule = ({
                       ? 'bg-[#F5F6F8] border-transparent text-[#C6CAD2] line-through cursor-not-allowed'
                       : selectedTime === slot.time
                       ? 'bg-[#007BFF] border-[#007BFF] text-white shadow-[0_4px_12px_rgba(0,123,255,0.3)] cursor-pointer'
-                      : 'bg-white border-[#E7E7EE] text-[#312E2E] hover:border-[#007BFF] hover:text-[#007BFF] cursor-pointer',
+                      : 'bg-white border-[#E7E7EE] text-dark hover:border-[#007BFF] hover:text-[#007BFF] cursor-pointer',
                   )}
                 >
                   {slot.time}
@@ -151,11 +192,7 @@ export const DoctorsSchedule = ({
                 <circle cx='12' cy='12' r='10' />
                 <polyline points='12 6 12 12 16 14' />
               </svg>
-              <span className='text-[#98A2B3] text-sm'>
-                {selectedDate
-                  ? 'На этот день нет доступного времени'
-                  : 'Выберите дату для просмотра времени'}
-              </span>
+              <span className='text-[#98A2B3] text-sm'>На этот день нет доступного времени</span>
             </div>
           )}
         </div>

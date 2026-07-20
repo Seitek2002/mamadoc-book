@@ -2,9 +2,10 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import type { ApiDoctorDetail } from '@/shared/mock';
+import type { ApiDoctorDetail, ApiReview } from '@/shared/mock';
 import { fixMediaUrl } from '@/shared/utils/media';
 import { DoctorsName } from '@/shared/ui';
+import { ReviewsModal } from '@/features';
 
 import StarIcon from '@/shared/assets/icons/doctor-detail/start-icon.svg';
 
@@ -26,14 +27,21 @@ const yearWord = (n: number) => {
 
 const BIO_CLAMP_LENGTH = 140;
 
-export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail }) => {
+interface DoctorsDetailsCardProps {
+  doctor: ApiDoctorDetail;
+  reviews: ApiReview[];
+  reviewsTotal: number;
+}
+
+export const DoctorsDetailsCard = ({ doctor: person, reviews, reviewsTotal }: DoctorsDetailsCardProps) => {
   const [imgError, setImgError] = useState(false);
   const [isBioExpanded, setIsBioExpanded] = useState(false);
+  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
 
   const isBioLong = (person.bio?.length ?? 0) > BIO_CLAMP_LENGTH;
 
   return (
-    <div className='bg-white p-4 md:p-5 mt-6 lg:mt-0 rounded-2xl w-full shadow-sm'>
+    <div className='bg-white p-4 md:p-5 lg:mt-0 rounded-2xl w-full shadow-sm'>
       <div className='flex items-start gap-4'>
         <div className='w-26 h-31 md:w-30 md:h-36 shrink-0 overflow-hidden rounded-xl'>
           {person.photo_url && !imgError ? (
@@ -61,11 +69,23 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
             className='text-base md:text-lg font-bold text-dark leading-snug'
           />
 
-          {person.specialties.length > 0 && (
-            <span className='inline-flex items-center text-[11px] font-semibold text-[#007BFF] bg-[#EAF3FF] rounded-full px-2.5 py-1 mt-1.5'>
-              {person.specialties[0]}
-            </span>
-          )}
+          <div className='flex items-center flex-wrap gap-1.5 mt-1.5'>
+            {person.specialties.length > 0 && (
+              <span className='inline-flex items-center text-[11px] font-semibold text-[#007BFF] bg-[#EAF3FF] rounded-full px-2.5 py-1'>
+                {person.specialties[0]}
+              </span>
+            )}
+            <button
+              type='button'
+              onClick={() => setIsReviewsOpen(true)}
+              className='inline-flex items-center gap-0.5 text-[11px] font-semibold text-[#007BFF] border border-[#DCEBFF] hover:bg-[#EAF3FF] rounded-full pl-2.5 pr-2 py-1 transition-colors'
+            >
+              Отзывы
+              <svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
+                <path d='M9 6l6 6-6 6' />
+              </svg>
+            </button>
+          </div>
 
           <div className='flex items-center gap-1.5 mt-2.5'>
             <StarIcon className='size-3.5 shrink-0' />
@@ -73,7 +93,7 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
               {person.rating}
             </span>
             <span className='text-xs text-[#98A2B3] font-medium'>
-              · {person.reviews.total_count} {reviewWord(person.reviews.total_count)}
+              · {reviewsTotal} {reviewWord(reviewsTotal)}
             </span>
           </div>
 
@@ -108,6 +128,14 @@ export const DoctorsDetailsCard = ({ doctor: person }: { doctor: ApiDoctorDetail
           )}
         </div>
       )}
+
+      <ReviewsModal
+        isOpen={isReviewsOpen}
+        onClose={() => setIsReviewsOpen(false)}
+        reviews={reviews}
+        total={reviewsTotal}
+        rating={person.rating}
+      />
     </div>
   );
 };

@@ -12,7 +12,6 @@ import {
   PaymentModal,
 } from '@/features';
 import type { ApiDoctorDetail, ApiCalendarDay, ApiTimeSlot, ApiPhoneCountry, ApiReview } from '@/shared/mock';
-import { ReviewsBlock } from './ReviewsBlock';
 import {
   sendOtp,
   verifyOtp,
@@ -57,26 +56,26 @@ const serviceWord = (n: number) => {
 };
 
 const StepIndicator = ({ current }: { current: number }) => (
-  <div className='flex items-start px-1'>
+  <div className='flex items-center'>
     {STEPS.map((label, idx) => {
       const num = idx + 1;
       const done = num < current;
       const active = num === current;
       return (
         <Fragment key={label}>
-          <div className='flex flex-col items-center gap-1.5 shrink-0'>
+          <div className='flex items-center gap-1.5 shrink-0'>
             <div
               className={clsx(
-                'size-8 rounded-full flex items-center justify-center text-[13px] font-bold transition-all',
+                'size-6 rounded-full flex items-center justify-center text-[11px] font-bold transition-all shrink-0',
                 active
-                  ? 'bg-[#007BFF] text-white ring-4 ring-[#007BFF]/15'
+                  ? 'bg-[#007BFF] text-white ring-3 ring-[#007BFF]/15'
                   : done
                   ? 'bg-[#5CB85C] text-white'
                   : 'bg-white border-2 border-[#DDE1E8] text-[#98A2B3]',
               )}
             >
               {done ? (
-                <svg width='12' height='10' viewBox='0 0 10 8' fill='none'>
+                <svg width='9' height='7' viewBox='0 0 10 8' fill='none'>
                   <path d='M1 4L3.5 6.5L9 1' stroke='white' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
                 </svg>
               ) : (
@@ -85,7 +84,7 @@ const StepIndicator = ({ current }: { current: number }) => (
             </div>
             <span
               className={clsx(
-                'text-[10px] font-semibold tracking-wide',
+                'text-[12px] font-semibold whitespace-nowrap',
                 active ? 'text-[#007BFF]' : done ? 'text-[#5CB85C]' : 'text-[#98A2B3]',
               )}
             >
@@ -95,7 +94,7 @@ const StepIndicator = ({ current }: { current: number }) => (
           {idx < STEPS.length - 1 && (
             <div
               className={clsx(
-                'flex-1 h-0.75 rounded-full mx-2 mt-3.5 transition-colors',
+                'flex-1 h-0.5 rounded-full mx-2.5 transition-colors',
                 done ? 'bg-[#5CB85C]' : 'bg-[#E7EAEF]',
               )}
             />
@@ -106,8 +105,26 @@ const StepIndicator = ({ current }: { current: number }) => (
   </div>
 );
 
+// Календарь с бэка всегда фиксирован на 30 дней вперёд и не поддерживает
+// пагинацию (даже нестандартные query-параметры игнорируются). Чтобы можно
+// было листать дальше, дозагружаем дни сами через available-times — этот
+// эндпоинт, в отличие от календаря, отдаёт данные на любую дату в будущем.
+const CALENDAR_LOAD_BATCH = 14;
+const CALENDAR_MAX_DAYS = 90;
+
+const toIsoDate = (d: Date) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
 export function BookingWrapper({ id, doctor, calendar, countries, reviews, reviewsTotal }: BookingWrapperProps) {
-  const firstAvailable = calendar.find((d) => d.is_available);
+  const [calendarDays, setCalendarDays] = useState(calendar);
+  const [isLoadingMoreDays, setIsLoadingMoreDays] = useState(false);
+  const hasMoreDays = calendarDays.length < CALENDAR_MAX_DAYS;
+
+  const firstAvailable = calendarDays.find((d) => d.is_available);
 
   const [selectedDate, setSelectedDate] = useState(firstAvailable?.date ?? '');
   const [selectedTime, setSelectedTime] = useState('');
@@ -136,6 +153,9 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
 
   const [errors, setErrors] = useState({ date: false, time: false, services: false });
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  // Разовый флаг: как только время выбрано хотя бы раз, услуги остаются
+  // видимыми и дальше, даже если время потом сбросится (смена даты/услуг)
+  const [isServicesUnlocked, setIsServicesUnlocked] = useState(false);
 
   const [isBookingLoading, setIsBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState('');
@@ -179,6 +199,47 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     }
   };
 
+  const loadMoreDays = async () => {
+    if (isLoadingMoreDays || !hasMoreDays || fallbackServiceIds.length === 0 || calendarDays.length === 0) {
+      return;
+    }
+    setIsLoadingMoreDays(true);
+    try {
+      const lastDate = new Date(calendarDays[calendarDays.length - 1].date);
+      const batchSize = Math.min(CALENDAR_LOAD_BATCH, CALENDAR_MAX_DAYS - calendarDays.length);
+      const dates = Array.from({ length: batchSize }, (_, i) => {
+        const d = new Date(lastDate);
+        d.setDate(d.getDate() + i + 1);
+        return toIsoDate(d);
+      });
+
+      const results = await Promise.all(
+        dates.map((date) =>
+          getProfessionalAvailableTimes(id, { date, service_ids: fallbackServiceIds }).catch(() => null),
+        ),
+      );
+
+      const newDays: ApiCalendarDay[] = dates.map((date, i) => {
+        const res = results[i];
+        const freeTimes = res ? res.times.filter((t) => !t.busy).map((t) => t.time) : [];
+        const label = new Date(date)
+          .toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+          .replace('.', '');
+        return {
+          date,
+          label,
+          is_available: freeTimes.length > 0,
+          slots_count: freeTimes.length,
+          times: freeTimes,
+        };
+      });
+
+      setCalendarDays((prev) => [...prev, ...newDays]);
+    } finally {
+      setIsLoadingMoreDays(false);
+    }
+  };
+
   const handleDateChange = async (date: string) => {
     setSelectedDate(date);
     setSelectedTime('');
@@ -192,7 +253,10 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
   const handleTimeChange = async (time: string) => {
     setSelectedTime(time);
     setErrors((prev) => ({ ...prev, time: false }));
-    if (time) setCurrentStep(3);
+    if (time) {
+      setCurrentStep(3);
+      setIsServicesUnlocked(true);
+    }
 
     if (!time || !selectedDate) return;
     setIsServicesLoading(true);
@@ -436,59 +500,30 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
     <>
       <div className='grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-4 items-start pb-36 lg:pb-0'>
 
-        {/* Left column: doctor card + reviews (desktop — в одной ячейке, без gap) */}
+        {/* Left column: doctor card (отзывы теперь открываются модалкой из карточки) */}
         <div className='lg:col-start-1 lg:row-start-1 mx-4 flex flex-col gap-4'>
-          <DoctorsDetailsCard doctor={doctor} />
-          <div className='hidden lg:block'>
-            <ReviewsBlock reviews={reviews} total={reviewsTotal} />
-          </div>
+          <DoctorsDetailsCard doctor={doctor} reviews={reviews} reviewsTotal={reviewsTotal} />
         </div>
 
         {/* Right column: step indicator at top + step content (both mobile & desktop) */}
         <div className='lg:col-start-2 lg:row-start-1 mx-4 lg:mx-0 flex flex-col gap-3'>
 
           {/* Step indicator */}
-          <div className='bg-white rounded-2xl px-4 py-4 shadow-sm'>
+          <div className='bg-white rounded-xl px-3.5 py-2.5 shadow-sm'>
             <StepIndicator current={currentStep} />
           </div>
 
-          {/* Back button */}
-          {currentStep > 1 && (
-            <button
-              onClick={() => setCurrentStep((p) => (p - 1) as 1 | 2 | 3)}
-              className='inline-flex items-center gap-1 self-start text-[13px] text-[#6B6B6B] font-medium bg-white border border-[#E7E7EE] rounded-full pl-2.5 pr-3.5 py-1.5 shadow-sm hover:border-[#C9CDD4] hover:text-dark transition-colors'
-            >
-              <svg width='14' height='14' viewBox='0 0 16 16' fill='none'>
-                <path d='M10 12L6 8L10 4' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
-              </svg>
-              Назад
-            </button>
-          )}
-
-          {/* Step content */}
-          {(currentStep === 1 || currentStep === 2) && (
-            <div key={currentStep} className='relative animate-in fade-in slide-in-from-bottom-2 duration-300'>
-              {errors.date && currentStep === 1 && <Tooltip text='Пожалуйста, выберите дату' />}
-              {errors.time && currentStep === 2 && <Tooltip text='Пожалуйста, выберите время' />}
-              <DoctorsSchedule
-                calendar={calendar}
-                selectedDate={selectedDate}
-                onDateChange={handleDateChange}
-                selectedTime={selectedTime}
-                onTimeChange={handleTimeChange}
-                isDateError={errors.date}
-                isTimeError={errors.time}
-                overrideTimes={filteredTimes}
-                isTimesLoading={isTimesLoading}
-                showSection={currentStep === 1 ? 'date' : 'time'}
-              />
-            </div>
-          )}
-
-          {currentStep === 3 && (
+          {/*
+            Дата всегда видна первой. Время появляется, как только выбрана
+            дата, и остаётся на экране — выбор даты никуда не пропадает.
+            Услуги появляются, как только выбрано время, и рендерятся НАД
+            блоком даты/времени; дальше тоже не прячутся, даже если время
+            потом сбросится (смена даты/услуг).
+          */}
+          {isServicesUnlocked && (
             <div
               className={clsx(
-                'rounded-2xl transition-all duration-300 relative border-2 animate-in fade-in slide-in-from-bottom-2',
+                'rounded-2xl transition-all duration-300 relative border-2 animate-in fade-in slide-in-from-top-2',
                 errors.services ? 'border-red-400' : 'border-transparent',
               )}
             >
@@ -501,6 +536,26 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
               />
             </div>
           )}
+
+          <div className='relative'>
+            {(errors.date || errors.time) && (
+              <Tooltip text={errors.date ? 'Пожалуйста, выберите дату' : 'Пожалуйста, выберите время'} />
+            )}
+            <DoctorsSchedule
+              calendar={calendarDays}
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              selectedTime={selectedTime}
+              onTimeChange={handleTimeChange}
+              isDateError={errors.date}
+              isTimeError={errors.time}
+              overrideTimes={filteredTimes}
+              isTimesLoading={isTimesLoading}
+              onLoadMoreDays={loadMoreDays}
+              isLoadingMoreDays={isLoadingMoreDays}
+              hasMoreDays={hasMoreDays}
+            />
+          </div>
 
           {/* Desktop summary + book button */}
           <div className='hidden lg:flex flex-col items-center gap-3 pt-2 pb-4'>
@@ -551,11 +606,6 @@ export function BookingWrapper({ id, doctor, calendar, countries, reviews, revie
               {isBookingLoading ? 'Записываем...' : 'Записаться'}
             </button>
           </div>
-        </div>
-
-        {/* Reviews: mobile only — after step content */}
-        <div className='lg:hidden mx-4'>
-          <ReviewsBlock reviews={doctor.reviews.items} total={doctor.reviews.total_count} />
         </div>
 
       </div>

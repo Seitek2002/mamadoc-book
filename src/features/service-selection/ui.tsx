@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import clsx from 'clsx';
 import type { ApiService } from '@/shared/mock';
 
@@ -26,6 +27,106 @@ const formatDuration = (min: number) => {
   return `${h} ч ${m} мин`;
 };
 
+// Порог, после которого описание услуги обрезается и появляется «Подробнее»
+const DESCRIPTION_CLAMP_LENGTH = 70;
+
+function ServiceRow({
+  service,
+  isSelected,
+  onToggle,
+}: {
+  service: ApiService;
+  isSelected: boolean;
+  onToggle: () => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isDescriptionLong = (service.description?.length ?? 0) > DESCRIPTION_CLAMP_LENGTH;
+
+  return (
+    <div
+      className={clsx(
+        'flex items-start gap-3 py-3.5 px-2 -mx-1 rounded-lg transition-colors',
+        isSelected ? 'bg-[#F4FAF5]' : 'hover:bg-[#F8FAFC]',
+      )}
+    >
+      <button
+        type='button'
+        onClick={onToggle}
+        className='flex items-start gap-3 flex-1 min-w-0 text-left'
+      >
+        <span
+          className={clsx(
+            'size-5.5 shrink-0 rounded-md border-2 flex justify-center items-center transition-colors mt-px',
+            isSelected
+              ? 'bg-[#5CB85C] border-[#5CB85C]'
+              : 'border-[#CBD2DC] bg-white',
+          )}
+        >
+          {isSelected && (
+            <svg width='11' height='9' viewBox='0 0 12 10' fill='none' xmlns='http://www.w3.org/2000/svg'>
+              <path
+                d='M1 5.2L4.2 8.4L10.6 2'
+                stroke='white'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              />
+            </svg>
+          )}
+        </span>
+
+        <span className='flex-1 min-w-0 flex flex-col gap-0.5'>
+          <span className='text-[13px] md:text-sm text-dark font-semibold leading-snug'>
+            {service.name}
+          </span>
+          {service.description && (
+            <span
+              className={clsx(
+                'text-[11px] md:text-xs text-[#98A2B3] leading-snug whitespace-pre-line',
+                isDescriptionLong && !isExpanded && 'line-clamp-2',
+              )}
+            >
+              {service.description}
+            </span>
+          )}
+          {typeof service.duration_min === 'number' && service.duration_min > 0 && (
+            <span className='flex items-center gap-1 text-[10px] text-[#B3B8C2] font-medium mt-0.5'>
+              <svg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
+                <circle cx='12' cy='12' r='10' />
+                <polyline points='12 6 12 12 16 14' />
+              </svg>
+              {formatDuration(service.duration_min)}
+            </span>
+          )}
+        </span>
+      </button>
+
+      <span className='flex flex-col items-end gap-1 shrink-0 mt-px'>
+        <span
+          className={clsx(
+            'text-[13px] md:text-sm font-semibold tabular-nums whitespace-nowrap',
+            isSelected ? 'text-[#2E9A46]' : 'text-dark',
+          )}
+        >
+          {service.price.toLocaleString('ru-RU')} с
+        </span>
+        {isDescriptionLong && (
+          <button
+            type='button'
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded((p) => !p);
+            }}
+            className='text-[10px] font-semibold text-[#007BFF] hover:text-[#0069D9] transition-colors whitespace-nowrap'
+          >
+            {isExpanded ? 'Свернуть' : 'Подробнее'}
+          </button>
+        )}
+      </span>
+    </div>
+  );
+}
+
 export function ServicesSelection({
   services,
   selectedServices,
@@ -49,7 +150,7 @@ export function ServicesSelection({
   return (
     <div className='bg-white rounded-2xl p-4 md:p-5 shadow-sm'>
       <div className='flex items-baseline justify-between mb-2'>
-        <span className='text-[15px] font-semibold text-[#312E2E]'>
+        <span className='text-[15px] font-semibold text-dark'>
           Выберите услуги
         </span>
         {!isLoading && services.length > 0 && (
@@ -83,76 +184,20 @@ export function ServicesSelection({
             </span>
           </div>
         ) : (
-          services.map((service) => {
-            const isSelected = selectedServices.includes(service.id);
-            return (
-              <button
-                key={service.id}
-                type='button'
-                onClick={() => toggleService(service.id)}
-                className={clsx(
-                  'flex items-start gap-3 py-3.5 px-2 -mx-1 text-left transition-colors rounded-lg',
-                  isSelected ? 'bg-[#F4FAF5]' : 'hover:bg-[#F8FAFC]',
-                )}
-              >
-                <span
-                  className={clsx(
-                    'size-5.5 shrink-0 rounded-md border-2 flex justify-center items-center transition-colors mt-px',
-                    isSelected
-                      ? 'bg-[#5CB85C] border-[#5CB85C]'
-                      : 'border-[#CBD2DC] bg-white',
-                  )}
-                >
-                  {isSelected && (
-                    <svg width='11' height='9' viewBox='0 0 12 10' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                      <path
-                        d='M1 5.2L4.2 8.4L10.6 2'
-                        stroke='white'
-                        strokeWidth='2'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                      />
-                    </svg>
-                  )}
-                </span>
-
-                <span className='flex-1 min-w-0 flex flex-col gap-0.5'>
-                  <span className='text-[13px] md:text-sm text-[#312E2E] font-semibold leading-snug'>
-                    {service.name}
-                  </span>
-                  {service.description && (
-                    <span className='text-[11px] md:text-xs text-[#98A2B3] leading-snug whitespace-pre-line'>
-                      {service.description}
-                    </span>
-                  )}
-                  {typeof service.duration_min === 'number' && service.duration_min > 0 && (
-                    <span className='flex items-center gap-1 text-[10px] text-[#B3B8C2] font-medium mt-0.5'>
-                      <svg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
-                        <circle cx='12' cy='12' r='10' />
-                        <polyline points='12 6 12 12 16 14' />
-                      </svg>
-                      {formatDuration(service.duration_min)}
-                    </span>
-                  )}
-                </span>
-
-                <span
-                  className={clsx(
-                    'text-[13px] md:text-sm font-semibold tabular-nums whitespace-nowrap mt-px',
-                    isSelected ? 'text-[#2E9A46]' : 'text-[#312E2E]',
-                  )}
-                >
-                  {service.price.toLocaleString('ru-RU')} с
-                </span>
-              </button>
-            );
-          })
+          services.map((service) => (
+            <ServiceRow
+              key={service.id}
+              service={service}
+              isSelected={selectedServices.includes(service.id)}
+              onToggle={() => toggleService(service.id)}
+            />
+          ))
         )}
       </div>
 
       {chosen.length > 0 && (
         <div className='flex items-center justify-between border-t border-[#F0F1F4] mt-1 pt-3'>
-          <span className='text-xs text-[#7A7878] font-medium'>
+          <span className='text-xs text-gray font-medium'>
             {chosen.length} {serviceWord(chosen.length)}
             {totalDuration != null && totalDuration > 0 && (
               <> · {formatDuration(totalDuration)}</>

@@ -4,3 +4,4 @@ export { PhoneModal } from './phone-modal';
 export { OTPModal } from './otp-modal';
 export { SuccessModal } from './success-modal';
 export { PaymentModal } from './payment-modal';
+export { ReviewsModal } from './reviews-modal';
