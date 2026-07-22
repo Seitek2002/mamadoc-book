@@ -89,15 +89,6 @@ function ServiceRow({
               {service.description}
             </span>
           )}
-          {typeof service.duration_min === 'number' && service.duration_min > 0 && (
-            <span className='flex items-center gap-1 text-[10px] text-[#B3B8C2] font-medium mt-0.5'>
-              <svg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
-                <circle cx='12' cy='12' r='10' />
-                <polyline points='12 6 12 12 16 14' />
-              </svg>
-              {formatDuration(service.duration_min)}
-            </span>
-          )}
         </span>
       </button>
 
@@ -110,6 +101,15 @@ function ServiceRow({
         >
           {service.price.toLocaleString('ru-RU')} с
         </span>
+        {typeof service.duration_min === 'number' && service.duration_min > 0 && (
+          <span className='flex items-center gap-1 text-[10px] text-[#B3B8C2] font-medium whitespace-nowrap'>
+            <svg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
+              <circle cx='12' cy='12' r='10' />
+              <polyline points='12 6 12 12 16 14' />
+            </svg>
+            {formatDuration(service.duration_min)}
+          </span>
+        )}
         {isDescriptionLong && (
           <button
             type='button'
